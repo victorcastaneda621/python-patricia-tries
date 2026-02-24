@@ -1,13 +1,5 @@
 
-import patricia
-
-class PatriciaTrie(patricia.trie):
-
-    def __init__(self, transactions):
-        super().__init__(transactions)
-
-
-def TransactionToBitSequence(transaction: set, global_order: dict):
+def transactionToBitSequence(transaction: set, global_order: dict):
     """
     Transforms a transaction t1 = {i1, i2, ..., in} into a bit sequence, where each
     bit determines whether the item in position j of the global order is included in 
@@ -20,29 +12,48 @@ def TransactionToBitSequence(transaction: set, global_order: dict):
     """
     seq = ["0"] * len(global_order)
     for item in transaction:
-        if item in global_order:
-            pos = global_order[item]
-            seq[pos] = "1"
-        else:
-            raise Exception(f"TransactionToBitSequence: Item {item} of transaction " +
-            "not found in global order")
+        pos = global_order[item]
+        seq[pos] = "1"
     return ''.join(seq)
-print(TransactionToBitSequence({1,4,6}, {1:0,2:1,3:2,4:3,5:4}))
 
-def TransactionListToSequences(transactions: list, support: dict):
+def prefixBitSequenceToTransaction(bit_prefix: str, reverse_order: dict):
+    t = set()
+    i = 0
+    for bit in bit_prefix:
+        if bit == "1":
+            t.add(reverse_order[i])
+        i += 1
+    return t
+
+def transactionListToSequences(transactions: list, global_order: dict):
     """
     Returns a list of bit sequences obtained from each transaction in the list.
     
     :param transactions: List of transactions
     :param support: Supports of the items (determines global order) {item:support}
     """
-    # Find out global order
+    seqs = []
+    for t in transactions:
+        seqs.append(transactionToBitSequence(t, global_order))
+    return seqs
+
+
+def count_support(transactions: list):
+    support = {}
+    for t in transactions:
+        for item in t:
+            if item in support:
+                support[item] += 1
+            else:
+                support[item] = 1
+    return support
+
+def generate_global_order_descending_support(support):
     global_order = {}
     i = 0
-    items = sorted(support.items(), lambda x,y: y)
-    while items:
-        max = items
-        supp.remove(max)
-    support.
-    # Generate the list of bit sequences
-    seqs = []
+    items = sorted(support.items(), key=lambda x: x[1], reverse=True)
+    for item,_ in items:
+        global_order[item] = i
+        i += 1
+    reverse_order = {pos: item for item, pos in global_order.items()}
+    return global_order, reverse_order
