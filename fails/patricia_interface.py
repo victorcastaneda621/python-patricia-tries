@@ -29,8 +29,8 @@ def transactionListToSequences(transactions: list, global_order: dict):
     """
     Returns a list of bit sequences obtained from each transaction in the list.
     
-    :param transactions: List of transactions
-    :param support: Supports of the items (determines global order) {item:support}
+    :param transactions: List of transactions.
+    :param global_order: Order of the items.
     """
     seqs = []
     for t in transactions:
