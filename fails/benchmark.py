@@ -39,7 +39,7 @@ def bench_your_trie():
     start = time.time()
     for t in lookup_keys:
         bit = tbs.transactionToBitSequence(t, trie.item_to_index)
-        _ = trie.get_from_bits(bit)
+        _ = trie.get_value_from_bits(bit)
     lookup_time = time.time() - start
 
     return insert_time, lookup_time

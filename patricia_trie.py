@@ -49,7 +49,7 @@ class InternalNode(Node):
         
 class LeafNode(Node):
     def __init__(self, key: int, value):
-        super().__init__(1, key)
+        super().__init__(value, key)
         self.key = key
         self.value = value # Amount of transactions equal to this one
 
@@ -90,10 +90,7 @@ class PatriciaTrie():
         bit_seq = tbs.transactionToBitSequence(transaction, self.item_to_index)
         return self.get_value_from_bits(bit_seq)
     
-    def insert(self, items: list):
-        # Separate keys and values
-        keys, values = zip(*items)
-
+    def insert(self, keys: list):
         # If we dont have an order (first insertion), we must obtain it
         if not self.index_to_item:
             self.index_to_item, self.item_to_index = tbs.find_item_order(keys)
@@ -103,14 +100,12 @@ class PatriciaTrie():
 
         # If the trie is empty, we need to add the first item as root
         if not self.root:
-            self.root = LeafNode(keys[0], values[0])
+            self.root = LeafNode(keys[0], 1)
             keys = keys[1:]
-            values = values[1:]
 
         # At this point we know we already have at least one node
         # in the trie, and bit sequences as keys
-        items = zip(keys, values)
-        for key,value in items:
+        for key in keys:
             # General procedure
             n = self._get_item_node(key)
             if not n.key == key:
@@ -133,7 +128,7 @@ class PatriciaTrie():
                         parent.set_left_child(m)
                     else:
                         parent.set_right_child(m)
-                h = LeafNode(key, value)
+                h = LeafNode(key, 1)
                 if is_bit_i_of_seq_zero(key, j):
                     m.set_left_child(h)
                     m.set_right_child(n)
@@ -142,14 +137,15 @@ class PatriciaTrie():
                     m.set_right_child(h)
                 m.subtrie_leaf_count = n.subtrie_leaf_count + h.subtrie_leaf_count
                 m.subtrie_or_mask = n.subtrie_or_mask | h.subtrie_or_mask
-            else: # Node already on the trie, we update the value
-                n.value += value
+            else: # Node already on the trie, we update the support
+                n.value += 1
+                n.subtrie_leaf_count += 1
         
     def _print(self, n, i, pos):
         indentation = "    " * i
         if isinstance(n, LeafNode):
             print(indentation + pos + "├── (" + str(self.seq_to_transaction(n.key)) + " --> key: " + 
-                  str(n.key) + ", value: " + str(n.value) + ")")
+                  str(n.key) + ", support: " + str(n.value) + ")")
         else:
             print(indentation + pos + "├──" + "(skip: " + str(n.skip) + ")")
             self._print(n.get_left_child(), i+1, "L")
@@ -164,29 +160,35 @@ class PatriciaTrie():
     def get_support_of_itemset(self, itemset: set):
         bit_seq = tbs.transactionToBitSequence(itemset, self.item_to_index)
         # We start at the root and follow edges until arriving at a leaf node
-        return self._get_support_of_itemset_at_node(bit_seq, self.root, self.root.skip)
-    def _get_support_of_itemset_at_node(self, bit_seq, node, i):
-        if isinstance(node, LeafNode):
-            pass
+        return self._get_support_of_itemset_at_node(bit_seq, self.root)
+    
+    def _get_support_of_itemset_at_node(self, bit_seq, node):
+        and_result = node.subtrie_or_mask & bit_seq
+        if and_result == bit_seq:
+            # i.e. the node's OR mask has 1s at least in the same places 
+            # as the bit_seq
+            if isinstance(node, LeafNode): 
+                # We arrived at a key that contains 1s in every required position
+                return node.value
+            else: 
+                # we continue exploring both children
+                left_supp = self._get_support_of_itemset_at_node(bit_seq, node.left_child)
+                right_supp = self._get_support_of_itemset_at_node(bit_seq, node.right_child)
+                return left_supp + right_supp
         else:
-            pass
-
-    def get_keys_from_prefix(self, prefix):
-        pass
-    def get_projection(self, items_to_project): # {AB:3, A:3, B:4} with {A} -> {ABC:3, A:3, B:0}
-        pass # return new trie (?)
-
-def testing_bit_seq(ts):
-    #print("Transactions: ", ts)
-    index_to_item, item_to_index = tbs.find_item_order([k for k,_ in ts])
-    #print(item_to_index)
-    seqs = tbs.transactionListToBitSequences([k for k,_ in ts], item_to_index)
-    print("Sequence values: ", seqs)
-    trie = PatriciaTrie()
-    trie.insert(ts)
-    trie.print()
-    #trie.insert([{"Praga"}]) # Not allowed for now
-    print(trie.get_value_from_transaction({"Atenas", "Oslo"}))
+            # We should stop exploring this subtrie
+            return 0
+        
+    def count_nodes(self):
+        return self._count_nodes(self.root)
+    
+    def _count_nodes(self, node):
+        if isinstance(node, LeafNode):
+            return 1
+        else: 
+            left_count = self._count_nodes(node.left_child)
+            right_count = self._count_nodes(node.right_child)
+            return left_count + right_count
 
 # example = [({"Atenas", "Oslo", "Roma"}, "t1"), ({"Atenas", "Oslo"}, "t2"),
 # ({"Oslo"}, "t3")] has supports [Atenas:1, Roma:2, Oslo:3], so it becomes 
