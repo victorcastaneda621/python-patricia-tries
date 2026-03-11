@@ -1,72 +1,42 @@
-from ucimlrepo import fetch_ucirepo
 import time
 
 import patricia_trie as pt
 
-def row_to_transaction(row):
-    transaction = set()
-    for col, value in row.items():
-        item = f"{col}={value}"
-        transaction.add(item)
-    return transaction
+def mine_patricia(transactions, min_supp):
+    before_trie_build = time.perf_counter()
 
-### Small example dataset #################################################################
-#transactions = [{"Atenas", "Oslo", "Roma", "Viena"}, {"Oslo"}, 
-#                {"Oslo", "Roma", "Viena"}, {"Oslo"}, {"Londres", "Madrid"}, 
-#                {"Londres", "Madrid", "Oslo"}]
-### Fetch mushroom dataset ################################################################# 
-mushroom = fetch_ucirepo(id=73)
-X = mushroom.data.features
-### Fetch connect-4 dataset ################################################################# 
-#connect_4 = fetch_ucirepo(id=26)
-#X = connect_4.data.features
+    trie = pt.PatriciaTrie()
 
-before_trie_build = time.perf_counter()
-transactions = [row_to_transaction(row) for _, row in X.iterrows()]
+    # Inserts the transactions and returns the counts of items
+    count = trie.insert(transactions)
 
-trie = pt.PatriciaTrie()
+    IL = trie.index_to_item
+    h,l = 0,0
+    X = ["" for i in IL]
+    X_as_bit_seq = 0
 
-# Inserts the transactions and returns the counts of items
-count = trie.insert(transactions)
+    after_trie_build = time.perf_counter()
 
-after_trie_build = time.perf_counter()
-
-IL = trie.index_to_item
-h,l = 0,0
-X = ["" for i in IL]
-X_as_bit_seq = 0
-min_supp = 1000
-
-returned = []
-while l<len(IL):
-    #print("X = %s, h = %s, l= %s"%("".join(X),h,l))
-    #input()
-    if count[IL[l]] < min_supp:
-        l += 1
-    else:
-        if h>0 and IL[l]==X[h-1]:
-            #print("if True",X)
-            
+    returned = []
+    while l<len(IL):
+        if count[IL[l]] < min_supp:
             l += 1
-            h -= 1
-            X_as_bit_seq = X_as_bit_seq ^ (1 << trie.item_to_index[X[h]])  # remove the bit of the item we backtrack from
         else:
-            X[h] = IL[l]
-            X_as_bit_seq = X_as_bit_seq | (1 << l)
-            h += 1
-            #print("Generate","".join(X[:h]),X)
-            returned.append(X[:h])
+            if h>0 and IL[l]==X[h-1]:        
+                l += 1
+                h -= 1
+                X_as_bit_seq = X_as_bit_seq ^ (1 << trie.item_to_index[X[h]])  # remove the bit of the item we backtrack from
+            else:
+                X[h] = IL[l]
+                X_as_bit_seq = X_as_bit_seq | (1 << l)
+                h += 1
+                #print("Generate","".join(X[:h]),X)
+                returned.append(X[:h])
 
-            for i in range(l-1,-1,-1):
-                
-                #print("    make %s.ptr point to head of threaded list for item %s w.r.t. D'%s"%(IL[i],IL[i],"".join(X[:h])))
-                #print("    %s.count =  support of %s item in D'%s"%(IL[i],IL[i],"".join(X[:h])))
-                # Commenting the next line generates all the tree, not just frequent itemsets
-                #count[IL[i]] = trie.get_support_of_itemset(set([IL[i]]) | set(X[:h]))
-                count[IL[i]] = trie.get_support_of_itemset_as_bit_seq((1 << i) | X_as_bit_seq)
-                #print("    new support for ",IL[i],"is",count[IL[i]],"\n")
-            l=0
-after_mining = time.perf_counter()
-print("----------------------------------------------------------------\n")
-print("Returned: ", returned)
-print("Times:\n - Trie Building: " + str(after_trie_build - before_trie_build) + "\n - Mining: " + str(after_mining - after_trie_build))
+                for i in range(l-1,-1,-1):
+                    count[IL[i]] = trie.get_support_of_itemset_as_bit_seq((1 << i) | X_as_bit_seq)
+                l=0
+    after_mining = time.perf_counter()
+    return {"build_time": after_trie_build - before_trie_build,
+            "mining_time": after_mining - after_trie_build,
+            "itemsets": returned}
