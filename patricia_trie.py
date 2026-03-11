@@ -9,7 +9,7 @@ def is_bit_i_of_seq_zero(seq, i):
 
 def first_difference(seq1, seq2):
         xor = seq1 ^ seq2 # seq1 XOR seq2
-        # Now the leftmost 1 is the first 
+        # Now the leftmost 1 is the first difference
         if xor == 0:
             return None # There will be no differences
         
@@ -93,7 +93,7 @@ class PatriciaTrie():
     def insert(self, keys: list):
         # If we dont have an order (first insertion), we must obtain it
         if not self.index_to_item:
-            self.index_to_item, self.item_to_index = tbs.find_item_order(keys)
+            self.index_to_item, self.item_to_index, support = tbs.find_item_order(keys)
 
         # Turn keys into bit sequences
         keys = tbs.transactionListToBitSequences(keys, self.item_to_index)
@@ -140,6 +140,7 @@ class PatriciaTrie():
             else: # Node already on the trie, we update the support
                 n.value += 1
                 n.subtrie_leaf_count += 1
+        return support
         
     def _print(self, n, i, pos):
         indentation = "    " * i
@@ -159,6 +160,10 @@ class PatriciaTrie():
     
     def get_support_of_itemset(self, itemset: set):
         bit_seq = tbs.transactionToBitSequence(itemset, self.item_to_index)
+        # We start at the root and follow edges until arriving at a leaf node
+        return self._get_support_of_itemset_at_node(bit_seq, self.root)
+    
+    def get_support_of_itemset_as_bit_seq(self, bit_seq: int):
         # We start at the root and follow edges until arriving at a leaf node
         return self._get_support_of_itemset_at_node(bit_seq, self.root)
     

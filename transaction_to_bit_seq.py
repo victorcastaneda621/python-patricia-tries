@@ -10,7 +10,7 @@ def find_item_order(transaction_list: list):
     index_to_item = [item for item, _ in support.most_common()]
     # item -> index
     item_to_index = {item:i for i, item in enumerate(index_to_item)}
-    return index_to_item, item_to_index
+    return index_to_item, item_to_index, support
 
 def transactionToBitSequence(t: set, item_to_index: dict):
     bit_seq = 0

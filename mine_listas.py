@@ -1,7 +1,6 @@
 from ucimlrepo import fetch_ucirepo
+from collections import Counter
 import time
-
-import patricia_trie as pt
 
 def row_to_transaction(row):
     transaction = set()
@@ -24,49 +23,49 @@ X = mushroom.data.features
 before_trie_build = time.perf_counter()
 transactions = [row_to_transaction(row) for _, row in X.iterrows()]
 
-trie = pt.PatriciaTrie()
-
-# Inserts the transactions and returns the counts of items
-count = trie.insert(transactions)
+Dprime = transactions
 
 after_trie_build = time.perf_counter()
 
-IL = trie.index_to_item
-h,l = 0,0
-X = ["" for i in IL]
-X_as_bit_seq = 0
+count = Counter()
+for t in transactions:
+    for item in t:
+        count[item] += 1
+IL = [item for item, _ in count.most_common()]
+X,h,l = [None for _ in IL],0,0
 min_supp = 1000
+
+def select(D, X):
+    out = []
+    X = set(X)
+    for tran in D:
+        if X.issubset(tran):
+            out.append(tran)
+    return out
 
 returned = []
 while l<len(IL):
-    #print("X = %s, h = %s, l= %s"%("".join(X),h,l))
-    #input()
     if count[IL[l]] < min_supp:
         l += 1
     else:
         if h>0 and IL[l]==X[h-1]:
-            #print("if True",X)
             
             l += 1
             h -= 1
-            X_as_bit_seq = X_as_bit_seq ^ (1 << trie.item_to_index[X[h]])  # remove the bit of the item we backtrack from
         else:
             X[h] = IL[l]
-            X_as_bit_seq = X_as_bit_seq | (1 << l)
             h += 1
             #print("Generate","".join(X[:h]),X)
             returned.append(X[:h])
 
+            if l:
+                DX = select(Dprime,X[:h])
             for i in range(l-1,-1,-1):
-                
-                #print("    make %s.ptr point to head of threaded list for item %s w.r.t. D'%s"%(IL[i],IL[i],"".join(X[:h])))
-                #print("    %s.count =  support of %s item in D'%s"%(IL[i],IL[i],"".join(X[:h])))
-                # Commenting the next line generates all the tree, not just frequent itemsets
-                #count[IL[i]] = trie.get_support_of_itemset(set([IL[i]]) | set(X[:h]))
-                count[IL[i]] = trie.get_support_of_itemset_as_bit_seq((1 << i) | X_as_bit_seq)
-                #print("    new support for ",IL[i],"is",count[IL[i]],"\n")
+                count[IL[i]] = sum([1 for elem in DX if IL[i] in elem])
             l=0
+
 after_mining = time.perf_counter()
 print("----------------------------------------------------------------\n")
 print("Returned: ", returned)
 print("Times:\n - Trie Building: " + str(after_trie_build - before_trie_build) + "\n - Mining: " + str(after_mining - after_trie_build))
+

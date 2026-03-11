@@ -12,13 +12,13 @@ for t in transactions_tuple:
     transactions.append(set(t))
 
 trie = pt.PatriciaTrie()
-trie.insert(transactions)
+
+# Inserts the transactions and returns the counts of items
+count = trie.insert(transactions)
 
 after_trie_build = time.perf_counter()
 
-universe = [item for t in transactions for item in t] # The trie already does this and Count(universe), we should reuse it
 IL = trie.index_to_item
-count = Counter(universe)
 X,h,l = ["" for i in IL],0,0
 min_supp = 100
 
