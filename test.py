@@ -15,7 +15,10 @@ DATASETS = {
     "small_cities",
     "mushroom",
     "connect4",
-    "pumsb"
+    "pumsb",
+    "connect4_fimi",
+    "artificial_1",
+    "mushroom_fimi"
 }
 
 METRICS_FILE = "files/metrics.csv"
@@ -54,6 +57,30 @@ if __name__ == '__main__':
                     if not line:
                         continue
                     transactions.append({str(x) for x in line.split()})
+        case "connect4_fimi":
+            transactions = []
+            with open("datasets/connect.dat") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    transactions.append({str(x) for x in line.split()})
+        case "artificial_1":
+            transactions = []
+            with open("datasets/T10I4D100k.dat") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    transactions.append({str(x) for x in line.split()})
+        case "mushroom_fimi":
+            transactions = []
+            with open("datasets/mushroom.dat") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    transactions.append({str(x) for x in line.split()})
     #####################################################################################
 
     results = algorithm(transactions, args.minsup) # Call the chosen miner
@@ -71,4 +98,4 @@ if __name__ == '__main__':
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     write_results(results["itemsets"], args) # Write mined itemsets to .txt
-    print(str(results["build_time"] + results["mining_time"]))
+    print(str(results["build_time"] + results["mining_time"]) + " s")

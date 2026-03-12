@@ -1,4 +1,3 @@
-from ucimlrepo import fetch_ucirepo
 from collections import Counter
 import time
 
