@@ -2,8 +2,6 @@ from ucimlrepo import fetch_ucirepo
 from collections import Counter
 import time
 
-import transaction_to_bit_seq as tbs
-
 def select(D, X):
         out = []
         X = set(X)

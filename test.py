@@ -1,33 +1,10 @@
 from ucimlrepo import fetch_ucirepo
-import argparse, csv, os
+import argparse, os
 
+from general_utils import write_metrics, write_results, row_to_transaction
 import transaction_to_bit_seq as tbs
-from mine_patricia import mine_patricia
-from mine_lists import mine_lists
-
-def write_metrics(metrics):
-
-    file_exists = os.path.isfile("files/metrics.csv")
-
-    with open("files/metrics.csv", "a", newline="") as f:
-        writer = csv.DictWriter(f,
-            fieldnames=[
-                "algorithm",
-                "dataset",
-                "minsup",
-                "build_time",
-                "mining_time"])
-
-        if not file_exists:
-            writer.writeheader()
-
-        writer.writerow(metrics)
-
-def write_results(itemsets):
-    filename = f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
-    with open(filename, "w") as f:
-        for itemset in itemsets:
-            f.write(",".join(itemset) + "\n")
+from algorithms.mine_patricia import mine_patricia
+from algorithms.mine_lists import mine_lists
 
 ALGORITHMS = {
     "patricia": mine_patricia,
@@ -37,9 +14,11 @@ ALGORITHMS = {
 DATASETS = {
     "small_cities",
     "mushroom",
-    "connect4"
+    "connect4",
+    "pumsb"
 }
 
+METRICS_FILE = "files/metrics.csv"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Frequent Itemset Mining")
@@ -62,14 +41,22 @@ if __name__ == '__main__':
         case "mushroom":
             mushroom = fetch_ucirepo(id=73)
             dataset = mushroom.data.features
-            transactions = [tbs.row_to_transaction(row) for _, row in dataset.iterrows()]
+            transactions = [row_to_transaction(row) for _, row in dataset.iterrows()]
         case "connect4":
             connect_4 = fetch_ucirepo(id=26)
             dataset = connect_4.data.features
-            transactions = [tbs.row_to_transaction(row) for _, row in dataset.iterrows()]
+            transactions = [row_to_transaction(row) for _, row in dataset.iterrows()]
+        case "pumsb":
+            transactions = []
+            with open("datasets/pumsb.dat") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    transactions.append({str(x) for x in line.split()})
     #####################################################################################
 
-    results = algorithm(transactions, args.minsup) # Call the miner
+    results = algorithm(transactions, args.minsup) # Call the chosen miner
     metrics = {
         "algorithm": args.alg,
         "dataset": args.data,
@@ -78,9 +65,10 @@ if __name__ == '__main__':
         "mining_time": results["mining_time"]
     }
 
-    if not os.path.exists("files"):
+    if not os.path.exists("files"): # Make sure the files directory exists
         os.makedirs("files")
         os.makedirs("files/results")
 
-    write_metrics(metrics) # Write metrics to CSV
-    write_results(results["itemsets"]) # Write mined itemsets to .txt
+    write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
+    write_results(results["itemsets"], args) # Write mined itemsets to .txt
+    print(str(results["build_time"] + results["mining_time"]))

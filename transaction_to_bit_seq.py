@@ -42,10 +42,3 @@ def bitSequenceListToTransaction(seqs: list, index_to_item: list):
     for seq in seqs:
         transactions.append(bitSequenceToTransaction(seq, index_to_item))
     return transactions
-
-def row_to_transaction(row):
-    transaction = set()
-    for col, value in row.items():
-        item = f"{col}={value}"
-        transaction.add(item)
-    return transaction
