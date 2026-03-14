@@ -1,22 +1,23 @@
+from general_utils import radix_tree_count_sort
 
 class Node():
-    def __init__(self, prefix: list, value: int, is_terminal: bool):
+    def __init__(self, prefix: list, support: int, is_terminal: bool):
         self.prefix = prefix
-        self.value = value
+        self.support = support
         self.is_terminal = is_terminal
 
 class LeafNode(Node):
-    def __init__(self, prefix: list, value: int):
-        super().__init__(prefix, value, True)
+    def __init__(self, prefix: list, support: int):
+        super().__init__(prefix, support, True)
 
 class SingleChildNode(Node):
-    def __init__(self, prefix: list, value: int, is_terminal: bool, child: Node = None):
-        super().__init__(prefix, value, is_terminal)
+    def __init__(self, prefix: list, support: int, is_terminal: bool, child: Node = None):
+        super().__init__(prefix, support, is_terminal)
         self.child = child
 
 class MultiChildNode(Node):
-    def __init__(self, prefix: list, value: int, is_terminal: bool, children: dict = None):
-        super().__init__(prefix, value, is_terminal)
+    def __init__(self, prefix: list, support: int, is_terminal: bool, children: dict = None):
+        super().__init__(prefix, support, is_terminal)
         self.children = children if children else {}
     
     def add_child(self, key, child: Node):
@@ -49,7 +50,7 @@ class RadixTree():
             
     def insert(self, keys: list):
         # Turn sets into lists (giving the items an order)
-        keys = [sorted(key) for key in keys]
+        # keys = [sorted(key) for key in keys]
 
         # If the tree is empty, we need to add the first item as root
         if not self.root:
@@ -64,7 +65,7 @@ class RadixTree():
             finished_adding_current_key = False
             while not finished_adding_current_key:
                 if key == n.prefix:
-                    n.value += 1
+                    n.support += 1
                     finished_adding_current_key = True
                 else:  
                     i = self._get_common_prefix_length(n.prefix, key)
@@ -72,23 +73,31 @@ class RadixTree():
                     # len(key) or len(n.prefix)
                     if i == len(key):
                         # len(key) < len(n.prefix) AND key = n.prefix[:i]
-                        m = SingleChildNode(n.prefix[:i], n.value, True, n)
+                        m = SingleChildNode(n.prefix[:i], n.support + 1, True, n)
                         n.prefix = n.prefix[i:]
                         self._replace_child(n_parent, m)
 
                         finished_adding_current_key = True
                     elif i == len(n.prefix):
                         # len(key) > len(n.prefix) AND key[:i] = n.prefix
+                        n.support += 1
                         if isinstance(n, LeafNode):
                             m = LeafNode(key[i:], 1)
-                            new_n = SingleChildNode(n.prefix, n.value, n.is_terminal, m)
+                            new_n = SingleChildNode(n.prefix, n.support, True, m)
                             self._replace_child(n_parent, new_n)
 
                             finished_adding_current_key = True
                         elif isinstance(n, SingleChildNode):
-                            n_parent = n
-                            n = n.child
-                            continue
+                            if n.child.prefix[0] == key[i]:
+                                n_parent = n
+                                n = n.child
+                                continue
+                            else:
+                                m = MultiChildNode(n.prefix, n.support, n.is_terminal)
+                                m.children[n.child.prefix[0]] = n.child
+                                m.children[key[i]] = LeafNode(key[i:], 1)
+                                self._replace_child(n_parent, m)
+                                finished_adding_current_key = True
                         elif isinstance(n, MultiChildNode):
                             if key[i] in n.children:
                                 n_parent = n
@@ -101,30 +110,92 @@ class RadixTree():
                     else:
                         # The first difference was found before 
                         # the end of key or n.prefix
-                        pass
-        
-    def _print(self, n, i, pos):
-        indentation = "    " * i
-        if isinstance(n, LeafNode):
-            print(indentation + pos + "├── (" + str(self.seq_to_transaction(n.key)) + " --> key: " + 
-                  str(n.key) + ", support: " + str(n.value) + ")")
+                        m = MultiChildNode(n.prefix[:i], n.support + 1, False)
+                        m.children[n.prefix[i]] = n
+                        m.children[key[i]] = LeafNode(key[i:], 1)
+                        self._replace_child(n_parent, m)
+                        n.prefix = n.prefix[i:]
+                        finished_adding_current_key = True
+
+    def _compare_to(self, key1, key2, order):
+        if order[key1] < order[key2]:
+            return -1
+        elif order[key1] > order[key2]:
+            return 1
         else:
-            print(indentation + pos + "├──" + "(skip: " + str(n.skip) + ")")
-            self._print(n.get_left_child(), i+1, "L")
-            self._print(n.get_right_child(), i+1, "R")
+            return 0
+
+    def get_support_of_itemset(self, itemset: list, order):
+        # We start at the root and follow edges until arriving at a leaf node
+        return self._get_support_of_itemset_at_node(itemset, self.root, 0, order)
+    
+    def _get_support_of_itemset_at_node(self, itemset, node, i, order):
+        support = 0
+        if i == len(itemset): 
+            # We should stop now
+            return node.support if node.is_terminal else 0
+        elif isinstance(node, LeafNode): 
+            # This node might contain the itemset
+            j = 0
+            while i+j < len(itemset) and j < len(node.prefix) and node.prefix[j] == itemset[i+j]:
+                j += 1
+            if j == len(itemset) - i:
+                return node.support
+            else:
+                return 0
+        elif isinstance(node, SingleChildNode): 
+            # We explore the child if it looks promising
+            if self._compare_to(node.child.prefix[0], itemset[i], order) != -1:
+                support += self._get_support_of_itemset_at_node(
+                    itemset, node.child, i+1, order)
+        else:
+            for child_key, child in node.children.items():
+            # We explore those children that look promising
+                cmp = self._compare_to(child_key, itemset[i], order)
+                if cmp == -1: 
+                    # Item i could still appear later, 
+                    # but not through this child
+                    continue
+                elif cmp == 1: 
+                    # Due to the ordering, we know the subtree 
+                    # cannot contain item i, so we prune it
+                    support += self._get_support_of_itemset_at_node(
+                        itemset, child, i, order)
+                else:
+                    # We found item i of the itemset
+                    support += self._get_support_of_itemset_at_node(
+                        itemset, child, i+1, order)
+        return support
+
+        
+    def _print(self, n, i, item):
+        indentation = "       " * i
+        if isinstance(n, LeafNode):
+            print(indentation + item + "├── (" + "--> " +
+                  str(n.prefix) + ", support: " + str(n.support) + ")")
+        elif isinstance(n, SingleChildNode):
+            print(indentation + item + "├── (" + "--> " +
+                  str(n.prefix) + ", support: " + str(n.support) + ")")
+            label = n.child.prefix[0] if n.child.prefix else "[]"
+            self._print(n.child, i+1, label)
+        else:
+            print(indentation + item + "├── (" + "--> " +
+                  str(n.prefix) + ", support: " + str(n.support) + ")")
+            for item, child in n.children.items():
+                self._print(child, i+1, item)
         
     def print(self):
-        self._print(self.root, 0, "·")
+        self._print(self.root, 0, str(self.root.prefix))
 
-# example = [({"Atenas", "Oslo", "Roma"}, "t1"), ({"Atenas", "Oslo"}, "t2"),
-# ({"Oslo"}, "t3")] has supports [Atenas:1, Roma:2, Oslo:3], so it becomes 
-# [0b111, 0b011, 0b001]. The the trie is:
-# Sequence values:  [7, 3, 1]
-#·├──(skip: 1)
-#    L├──1 (value: t3)
-#    R├──(skip: 2)
-#        L├──3 (value: t2)
-#        R├──7 (value: t1)
-example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
+# example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
+#
+#·├── (--> [], support: 3)
+#       Atenas├── (--> ['Atenas'], support: 2)   
+#              Roma├── (--> ['Roma'], support: 1)
+example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}, {"Praga", "Oslo"}, 
+           {"Londres", "Kyiv", "Tallin"}, {"Londres", "Kyiv", "Dublin"}, {"Atenas", "Kyiv"}]
 tree = RadixTree()
-tree.insert(example)
+transactions, support, order = radix_tree_count_sort(example)
+tree.insert(transactions)
+tree.print()
+print("support: " + str(tree.get_support_of_itemset(["Atenas"], order)))

@@ -1,4 +1,5 @@
 import os, csv
+from collections import Counter
 
 def row_to_transaction(row):
     """Turns a row of data from a table into a transaction.
@@ -43,3 +44,16 @@ def write_results(itemsets, args):
     with open(filename, "w") as f:
         for itemset in itemsets:
             f.write(",".join(itemset) + "\n")
+
+def radix_tree_count_sort(transaction_list: list):
+    support = Counter()
+    for t in transaction_list:
+        support.update(t)
+
+    order = {item:i for i, (item, _) in enumerate(support.most_common())}
+
+    sorted_transactions = []
+    for t in transaction_list:
+        sorted_transactions.append(sorted(t, key=order.get))
+
+    return sorted_transactions, support, order
