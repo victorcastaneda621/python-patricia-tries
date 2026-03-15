@@ -46,7 +46,8 @@ class RadixTree():
         elif isinstance(parent, SingleChildNode):
             parent.child = new_node
         else:
-            parent.children[new_node.prefix[0]] = new_node
+            key = new_node.prefix[0] if new_node.prefix else None
+            parent.children[key] = new_node
             
     def insert(self, keys: list):
         # Turn sets into lists (giving the items an order)
@@ -118,7 +119,13 @@ class RadixTree():
                         finished_adding_current_key = True
 
     def _compare_to(self, key1, key2, order):
-        if order[key1] < order[key2]:
+        if key1 is None and key2 is None:
+            return 0
+        elif key1 is None:
+            return -1 # None is "smaller" than any real item
+        elif key2 is None:
+            return 1 # any real item is bigger than
+        elif order[key1] < order[key2]:
             return -1
         elif order[key1] > order[key2]:
             return 1
