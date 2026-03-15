@@ -2,13 +2,14 @@ from ucimlrepo import fetch_ucirepo
 import argparse, os
 
 from general_utils import write_metrics, write_results, row_to_transaction
-import transaction_to_bit_seq as tbs
 from algorithms.mine_patricia import mine_patricia
 from algorithms.mine_lists import mine_lists
+from algorithms.mine_radix import mine_radix
 
 ALGORITHMS = {
     "patricia": mine_patricia,
-    "list": mine_lists
+    "list": mine_lists,
+    "radix": mine_radix
 }
 
 DATASETS = {

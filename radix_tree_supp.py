@@ -126,47 +126,47 @@ class RadixTree():
             return 0
 
     def get_support_of_itemset(self, itemset: list, order):
-        # We start at the root and follow edges until arriving at a leaf node
+        if not itemset: # Empty itemset case
+            return self.root.support if self.root else 0
+        # We start at the root having checked 0 items of the itemset
         return self._get_support_of_itemset_at_node(itemset, self.root, 0, order)
     
-    def _get_support_of_itemset_at_node(self, itemset, node, i, order):
-        support = 0
-        if i == len(itemset): 
-            # We should stop now
-            return node.support if node.is_terminal else 0
-        elif isinstance(node, LeafNode): 
-            # This node might contain the itemset
-            j = 0
-            while i+j < len(itemset) and j < len(node.prefix) and node.prefix[j] == itemset[i+j]:
-                j += 1
-            if j == len(itemset) - i:
+    def _get_support_of_itemset_at_node(self, itemset, node, j, order):
+        # Check the current node's prefix
+        for i in range(0, len(node.prefix)):
+            # Stop if we have already checked every item from the itemset
+            if j == len(itemset): 
                 return node.support
-            else:
+            elif node.prefix[i] == itemset[j]:
+                j += 1 # We have to check the next item in the itemset
+            elif self._compare_to(node.prefix[i], itemset[j], order) == 1: 
+                # Entering here means that this node is missing some items of the itemset
                 return 0
-        elif isinstance(node, SingleChildNode): 
-            # We explore the child if it looks promising
-            if self._compare_to(node.child.prefix[0], itemset[i], order) != -1:
-                support += self._get_support_of_itemset_at_node(
-                    itemset, node.child, i+1, order)
-        else:
-            for child_key, child in node.children.items():
-            # We explore those children that look promising
-                cmp = self._compare_to(child_key, itemset[i], order)
-                if cmp == -1: 
-                    # Item i could still appear later, 
-                    # but not through this child
-                    continue
-                elif cmp == 1: 
-                    # Due to the ordering, we know the subtree 
-                    # cannot contain item i, so we prune it
-                    support += self._get_support_of_itemset_at_node(
-                        itemset, child, i, order)
-                else:
-                    # We found item i of the itemset
-                    support += self._get_support_of_itemset_at_node(
-                        itemset, child, i+1, order)
-        return support
-
+        # Stop if we have already checked every item from the itemset
+            if j == len(itemset): 
+                return node.support
+        
+        # Now, if we didn't return, we must continue checking this node's children
+        result = 0
+        if isinstance(node, LeafNode):
+            # Then it has no children, so we return while having not
+            # found the full itemset
+            return 0
+        elif isinstance(node, SingleChildNode):
+            # We check the child if it looks promising
+            if self._compare_to(node.child.prefix[0], itemset[j], order) != 1:
+                # It is promising, so we explore it
+                result += self._get_support_of_itemset_at_node(
+                    itemset, node.child, j, order
+                    )
+        else: # It is a MultiChildNode
+            # We check any of its children if it looks promising
+            for child_key in node.children.keys():
+                if self._compare_to(child_key, itemset[j], order) != 1:
+                    result += self._get_support_of_itemset_at_node(
+                        itemset, node.children[child_key], j, order
+                        )
+        return result
         
     def _print(self, n, i, item):
         indentation = "       " * i
@@ -192,10 +192,32 @@ class RadixTree():
 #·├── (--> [], support: 3)
 #       Atenas├── (--> ['Atenas'], support: 2)   
 #              Roma├── (--> ['Roma'], support: 1)
-example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}, {"Praga", "Oslo"}, 
+# Using the order makes sure that if we see item1 and item4 and item5 as its children,
+# item2 and item3 cannot be anywhere in the subtree
+"""example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}, {"Praga", "Oslo"}, 
            {"Londres", "Kyiv", "Tallin"}, {"Londres", "Kyiv", "Dublin"}, {"Atenas", "Kyiv"}]
 tree = RadixTree()
 transactions, support, order = radix_tree_count_sort(example)
+print("order: ", order)
 tree.insert(transactions)
 tree.print()
-print("support: " + str(tree.get_support_of_itemset(["Atenas"], order)))
+print('support(["Atenas"]): ' + str(tree.get_support_of_itemset(["Atenas"], order)))
+print('support(["Oslo"]): ' + str(tree.get_support_of_itemset(["Oslo"], order)))
+print('support(["Atenas", "Oslo"]): ' + str(tree.get_support_of_itemset(["Oslo", "Atenas"], order)))
+print('support(["Atenas", "Tallin"]): ' + str(tree.get_support_of_itemset(["Atenas", "Tallin"], order)))
+print('support(["Oslo", "Londres"]): ' + str(tree.get_support_of_itemset(["Oslo", "Londres"], order)))
+print('support(["Oslo", "Roma"]): ' + str(tree.get_support_of_itemset(["Oslo", "Roma"], order)))
+print('support(["Kyiv"]): ' + str(tree.get_support_of_itemset(["Kyiv"], order)))
+print("\n--- Extended Testing ---")
+# Case A: Partial match in the middle of a multi-item prefix
+# Searching for "Londres" when the node is ['Kyiv', 'Londres']
+print('support(["Londres"]): ' + str(tree.get_support_of_itemset(["Londres"], order)))
+# Case B: The "Empty" Itemset (Should theoretically be the total number of transactions)
+print('support([]): ' + str(tree.get_support_of_itemset([], order)))
+# Case C: Itemset that doesn't exist but its items do (in the wrong order or combo)
+# Oslo and Dublin both exist, but never together.
+print('support(["Oslo", "Dublin"]): ' + str(tree.get_support_of_itemset(["Oslo", "Dublin"], order)))
+# Case D: Deeply nested match
+# Checking if it finds "Roma" even though it's at the very tip of a long branch
+print('support(["Roma"]): ' + str(tree.get_support_of_itemset(["Roma"], order)))
+# Case E: Non-existent item entirely (doesnt handle it, but it should never come up)"""
