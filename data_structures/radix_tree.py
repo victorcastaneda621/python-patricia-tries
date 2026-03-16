@@ -1,4 +1,3 @@
-from general_utils import radix_tree_count_sort
 
 class Node():
     def __init__(self, prefix: list, support: int, is_terminal: bool):
@@ -119,24 +118,18 @@ class RadixTree():
                         finished_adding_current_key = True
 
     def _compare_to(self, key1, key2, order):
-        if key1 is None and key2 is None:
-            return 0
-        elif key1 is None:
-            return -1 # None is "smaller" than any real item
-        elif key2 is None:
-            return 1 # any real item is bigger than
-        elif order[key1] < order[key2]:
-            return -1
-        elif order[key1] > order[key2]:
-            return 1
-        else:
-            return 0
+        if key1 == key2: return 0
+        if key1 is None: return -1
+        # Assuming key2 will never be "None" based on the mining loop
+        return -1 if order[key1] < order[key2] else 1
 
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
             return self.root.support if self.root else 0
+        # itemset might not be sorted the way we want it to be
+        sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
         # We start at the root having checked 0 items of the itemset
-        return self._get_support_of_itemset_at_node(itemset, self.root, 0, order)
+        return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
     
     def _get_support_of_itemset_at_node(self, itemset, node, j, order):
         # Check the current node's prefix

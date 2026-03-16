@@ -1,6 +1,6 @@
 import time
 
-import radix_tree_supp as rtree
+import data_structures.radix_tree as rtree
 from general_utils import radix_tree_count_sort
 
 def mine_radix(transactions, min_supp):
@@ -32,7 +32,6 @@ def mine_radix(transactions, min_supp):
                 returned.append(X[:h])
 
                 for i in range(l-1,-1,-1):
-                    
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
     after_mining = time.perf_counter()

@@ -2,12 +2,12 @@ from ucimlrepo import fetch_ucirepo
 import argparse, os
 
 from general_utils import write_metrics, write_results, row_to_transaction
-from algorithms.mine_patricia import mine_patricia
+from algorithms.mine_patricia import mine_patricia # Well use a parameter to determine whether bits are Seqs or item encs
 from algorithms.mine_lists import mine_lists
-from algorithms.mine_radix import mine_radix
+from algorithms.mine_radix import mine_radix # Will need parameter to ask for one or more types of nodes to be used
 
 ALGORITHMS = {
-    "patricia": mine_patricia,
+    "patricia_cf": mine_patricia,
     "list": mine_lists,
     "radix": mine_radix
 }
@@ -99,4 +99,8 @@ if __name__ == '__main__':
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     write_results(results["itemsets"], args) # Write mined itemsets to .txt
-    print(str(results["build_time"] + results["mining_time"]) + " s")
+    print(
+        "Build time: " + str(results["build_time"]) + " s" +
+        "\nMining time: " + str(results["mining_time"]) + " s" +
+        "\nTotal time: " + str(results["build_time"] + results["mining_time"]) + " s" +
+        "\nNumber of frequent itemsets: " + str(len(results["itemsets"])))

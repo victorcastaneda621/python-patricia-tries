@@ -54,8 +54,10 @@ class LeafNode(Node):
         self.value = value # Amount of transactions equal to this one
 
 ## PATRICIA TRIE ##############################################################
-
-class PatriciaTrie():
+class PatriciaTrieSeq():
+    """PatriciaTrieSeq is a Patricia trie where transactions are transformed
+    into bit sequences where bit j indicates if item j in the global order
+    is in the transaction or not."""
     def __init__(self):
         self.root = None
         self.item_to_index = None
@@ -194,15 +196,17 @@ class PatriciaTrie():
             left_count = self._count_nodes(node.left_child)
             right_count = self._count_nodes(node.right_child)
             return left_count + right_count
+        
+class PatriciaTrieItem():
+    pass
 
-# example = [({"Atenas", "Oslo", "Roma"}, "t1"), ({"Atenas", "Oslo"}, "t2"),
-# ({"Oslo"}, "t3")] has supports [Atenas:1, Roma:2, Oslo:3], so it becomes 
-# [0b111, 0b011, 0b001]. The the trie is:
+## PatriciaTrieSeq ############################################################
+# example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}] 
+# has supports [Atenas:1, Roma:2, Oslo:3], so it becomes [0b111, 0b011, 0b001]. 
+# The trie is:
 # Sequence values:  [7, 3, 1]
 #·├──(skip: 1)
 #    L├──1 (value: t3)
 #    R├──(skip: 2)
 #        L├──3 (value: t2)
 #        R├──7 (value: t1)
-#example = [({"Atenas", "Oslo", "Roma"}, "t1"), ({"Atenas", "Oslo"}, "t2"), ({"Oslo"}, "t3")]
-#testing_bit_seq(example)
