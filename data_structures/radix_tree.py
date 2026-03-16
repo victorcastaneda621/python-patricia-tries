@@ -1,3 +1,4 @@
+from general_utils import radix_tree_count_sort
 
 class Node():
     def __init__(self, prefix: list, support: int, is_terminal: bool):
@@ -73,7 +74,6 @@ class RadixTree():
                         m = SingleChildNode(n.prefix[:i], n.support + 1, True, n)
                         n.prefix = n.prefix[i:]
                         self._replace_child(n_parent, m)
-
                         finished_adding_current_key = True
                     elif i == len(n.prefix):
                         # len(key) > len(n.prefix) AND key[:i] = n.prefix
@@ -88,6 +88,7 @@ class RadixTree():
                             if n.child.prefix[0] == key[i]:
                                 n_parent = n
                                 n = n.child
+                                key = key[i:]
                                 continue
                             else:
                                 m = MultiChildNode(n.prefix, n.support, n.is_terminal)
@@ -99,6 +100,7 @@ class RadixTree():
                             if key[i] in n.children:
                                 n_parent = n
                                 n = n.children[key[i]]
+                                key = key[i:]
                                 continue
                             else:
                                 m = LeafNode(key[i:], 1)
@@ -218,3 +220,14 @@ print('support(["Oslo", "Dublin"]): ' + str(tree.get_support_of_itemset(["Oslo",
 # Checking if it finds "Roma" even though it's at the very tip of a long branch
 print('support(["Roma"]): ' + str(tree.get_support_of_itemset(["Roma"], order)))
 # Case E: Non-existent item entirely (doesnt handle it, but it should never come up)"""
+"""example = [
+    {"A", "B", "C", "D"},
+    {"A", "B"},
+    {"A", "B", "C"}
+]
+transactions, support, order = radix_tree_count_sort(example)
+tree = RadixTree()
+print(order)
+print(transactions)
+tree.insert(transactions)
+tree.print()"""

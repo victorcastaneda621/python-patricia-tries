@@ -110,18 +110,23 @@ class PatriciaTrieSeq():
         for key in keys:
             # General procedure
             n = self._get_item_node(key)
-            if not n.key == key:
+
+            if n.key != key:
                 j = first_difference(n.key, key)
                 parent = None
-                n = self.root
+                current = self.root
                 left_child = False
-                while not isinstance(n, LeafNode) and n.skip < j:
-                    parent = n
-                    if is_bit_i_of_seq_zero(key, n.skip):
-                        n = n.left_child
+
+                while not isinstance(current, LeafNode) and current.skip < j:
+                    current.subtrie_leaf_count += 1
+                    current.subtrie_or_mask = current.subtrie_or_mask | key
+                    parent = current
+                    if is_bit_i_of_seq_zero(key, current.skip):
+                        current = current.left_child
                         left_child = True
                     else:
-                        n = n.right_child
+                        current = current.right_child
+                        left_child = False
                 m = InternalNode(j, None, None, None, None)
                 if not parent:
                     self.root = m
@@ -133,13 +138,23 @@ class PatriciaTrieSeq():
                 h = LeafNode(key, 1)
                 if is_bit_i_of_seq_zero(key, j):
                     m.set_left_child(h)
-                    m.set_right_child(n)
+                    m.set_right_child(current)
                 else:
-                    m.set_left_child(n)
+                    m.set_left_child(current)
                     m.set_right_child(h)
-                m.subtrie_leaf_count = n.subtrie_leaf_count + h.subtrie_leaf_count
-                m.subtrie_or_mask = n.subtrie_or_mask | h.subtrie_or_mask
+                m.subtrie_leaf_count = current.subtrie_leaf_count + h.subtrie_leaf_count
+                m.subtrie_or_mask = current.subtrie_or_mask | h.subtrie_or_mask
             else: # Node already on the trie, we update the support
+                current = self.root
+                while current != n:
+                    # Update the support of all ancestors
+                    current.subtrie_leaf_count += 1
+                    current.subtrie_or_mask |= key 
+                    if is_bit_i_of_seq_zero(key, current.skip):
+                        current = current.left_child
+                    else:
+                        current = current.right_child
+
                 n.value += 1
                 n.subtrie_leaf_count += 1
         return support
@@ -178,10 +193,16 @@ class PatriciaTrieSeq():
                 # We arrived at a key that contains 1s in every required position
                 return node.value
             else: 
-                # we continue exploring both children
-                left_supp = self._get_support_of_itemset_at_node(bit_seq, node.left_child)
-                right_supp = self._get_support_of_itemset_at_node(bit_seq, node.right_child)
-                return left_supp + right_supp
+                # we continue exploring children
+                if not is_bit_i_of_seq_zero(bit_seq, node.skip):
+                    # If the target bit_seq requires a 1 at node.skip, we only explore the 
+                    # right child. The left child is a dead end (path where that bit is 0).
+                    return self._get_support_of_itemset_at_node(bit_seq, node.right_child)
+                else:
+                    # The target doesn't care about this bit, so explore both branches
+                    left_supp = self._get_support_of_itemset_at_node(bit_seq, node.left_child)
+                    right_supp = self._get_support_of_itemset_at_node(bit_seq, node.right_child)
+                    return left_supp + right_supp
         else:
             # We should stop exploring this subtrie
             return 0
