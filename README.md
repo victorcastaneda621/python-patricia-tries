@@ -3,17 +3,6 @@
 ## Example Usage
 
 ```bash
-python main.py --alg list --data mushroom --minsup 9000
-```
-
-```
-Build time: 0.026216499973088503 s
-Mining time: 1.0200077667832375e-05 s
-Total time: 0.026226700050756335 s
-Number of frequent itemsets: 0
-```
-
-```bash
 python main.py --alg list --data mushroom --minsup 8000
 ```
 
