@@ -1,4 +1,4 @@
-import transaction_to_bit_seq as tbs
+import data_structures.transaction_to_bit_seq as tbs
 
 ## AUXILIARY FUNCTIONS ########################################################
 

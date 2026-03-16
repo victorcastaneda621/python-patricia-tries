@@ -1,5 +1,4 @@
 import time
-
 import data_structures.patricia_trie as pt
 
 def mine_patricia(transactions, min_supp):

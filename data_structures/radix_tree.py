@@ -21,9 +21,6 @@ class MultiChildNode(Node):
     
     def add_child(self, key, child: Node):
         self.children[key] = child
-    
-    def remove_child(self, child):
-        pass #TODO
 
 ## RADIX TREE ##############################################################
 
