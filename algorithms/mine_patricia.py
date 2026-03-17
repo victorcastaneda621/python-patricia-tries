@@ -1,10 +1,10 @@
 import time
-import data_structures.patricia_trie as pt
+import data_structures.patricia_trie.patricia_seq as ptSeq
 
 def mine_patricia(transactions, min_supp):
     before_trie_build = time.perf_counter()
 
-    trie = pt.PatriciaTrieSeq()
+    trie = ptSeq.PatriciaTrieSeq()
 
     # Inserts the transactions and returns the counts of items
     count = trie.insert(transactions)

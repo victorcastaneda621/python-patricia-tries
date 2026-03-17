@@ -1,4 +1,3 @@
-from ucimlrepo import fetch_ucirepo 
 import pygtrie
   
 # fetch dataset 

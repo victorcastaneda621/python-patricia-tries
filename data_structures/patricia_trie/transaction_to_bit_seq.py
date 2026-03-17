@@ -1,7 +1,7 @@
 from collections import Counter
 
-## patricia_trie_long (sequences where each bit represents ####################
-## whether item j is or isn't in the transaction, producing long sequences) ###
+## patricia_seq (sequences where each bit represents whether item j ###########
+## is or isn't in the transaction, producing long fixed-length sequences) #####
 
 def find_item_order(transaction_list: list):
     # Build the universe of items

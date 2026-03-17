@@ -1,4 +1,4 @@
-import data_structures.transaction_to_bit_seq as tbs
+import data_structures.patricia_trie.transaction_to_bit_seq as tbs
 
 ## AUXILIARY FUNCTIONS ########################################################
 
@@ -217,9 +217,6 @@ class PatriciaTrieSeq():
             left_count = self._count_nodes(node.left_child)
             right_count = self._count_nodes(node.right_child)
             return left_count + right_count
-        
-class PatriciaTrieItem():
-    pass
 
 ## PatriciaTrieSeq ############################################################
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}] 
