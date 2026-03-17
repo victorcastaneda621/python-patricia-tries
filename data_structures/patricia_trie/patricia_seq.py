@@ -89,7 +89,7 @@ class PatriciaTrieSeq():
             return None
         
     def get_value_from_transaction(self, transaction: set):
-        bit_seq = tbs.transactionToBitSequence(transaction, self.item_to_index)
+        bit_seq = tbs.transaction_to_bit_sequence(transaction, self.item_to_index)
         return self.get_value_from_bits(bit_seq)
     
     def insert(self, keys: list):
@@ -98,7 +98,7 @@ class PatriciaTrieSeq():
             self.index_to_item, self.item_to_index, support = tbs.find_item_order(keys)
 
         # Turn keys into bit sequences
-        keys = tbs.transactionListToBitSequences(keys, self.item_to_index)
+        keys = tbs.transaction_list_to_bit_sequences(keys, self.item_to_index)
 
         # If the trie is empty, we need to add the first item as root
         if not self.root:
@@ -173,10 +173,10 @@ class PatriciaTrieSeq():
         self._print(self.root, 0, "·")
 
     def seq_to_transaction(self, seq):
-        return tbs.bitSequenceToTransaction(seq, self.index_to_item)
+        return tbs.bitSequence_to_transaction(seq, self.index_to_item)
     
     def get_support_of_itemset(self, itemset: set):
-        bit_seq = tbs.transactionToBitSequence(itemset, self.item_to_index)
+        bit_seq = tbs.transaction_to_bit_sequence(itemset, self.item_to_index)
         # We start at the root and follow edges until arriving at a leaf node
         return self._get_support_of_itemset_at_node(bit_seq, self.root)
     
