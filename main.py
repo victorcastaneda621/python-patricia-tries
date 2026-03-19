@@ -12,7 +12,7 @@ ALGORITHMS = {
     "radix": mine_radix
 }
 
-DATASETS = {
+DATASETS = [
     "small_cities",
     "mushroom",
     "connect4",
@@ -20,24 +20,21 @@ DATASETS = {
     "connect4_fimi",
     "artificial_1",
     "mushroom_fimi"
-}
+]
 
 METRICS_FILE = "files/metrics.csv"
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Frequent Itemset Mining")
-    parser.add_argument("--alg", choices=ALGORITHMS.keys(), 
-                        required=True, help="Algorithm to run")
-    parser.add_argument("--data", choices=DATASETS, 
-                        required=True, help="Dataset to use")
-    parser.add_argument("--minsup", type=int,
-                        required=True, help="Minimun support")
-    args = parser.parse_args()
+def load_local_dataset(path):
+    transactions = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                transactions.append({str(x) for x in line.split()})
+    return transactions
 
-    algorithm = ALGORITHMS[args.alg]
-
-    ### dataset fetching ################################################################
-    match args.data:
+def load_dataset(name):
+    match name:
         case "small_cities":
             transactions = [{"Atenas", "Oslo", "Roma", "Viena"}, {"Oslo"}, 
                             {"Oslo", "Roma", "Viena"}, {"Oslo"}, {"Londres", "Madrid"}, 
@@ -51,40 +48,23 @@ if __name__ == '__main__':
             dataset = connect_4.data.features
             transactions = [row_to_transaction(row) for _, row in dataset.iterrows()]
         case "pumsb":
-            transactions = []
-            with open("datasets/pumsb.dat") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    transactions.append({str(x) for x in line.split()})
+            transactions = load_local_dataset("datasets/pumsb.dat")
         case "connect4_fimi":
-            transactions = []
-            with open("datasets/connect.dat") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    transactions.append({str(x) for x in line.split()})
+            transactions = load_local_dataset("datasets/connect.dat")
         case "artificial_1":
-            transactions = []
-            with open("datasets/T10I4D100k.dat") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    transactions.append({str(x) for x in line.split()})
+            transactions = load_local_dataset("datasets/T10I4D100k.dat")
         case "mushroom_fimi":
-            transactions = []
-            with open("datasets/mushroom.dat") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    transactions.append({str(x) for x in line.split()})
-    #####################################################################################
+            transactions = load_local_dataset("datasets/mushroom.dat")
+        case _:
+            raise ValueError(f"Unknown dataset: {name}")
+    return transactions
+
+def run_experiment(args):
+    transactions = load_dataset(args.data)
+    algorithm = ALGORITHMS[args.alg]
 
     results = algorithm(transactions, args.minsup) # Call the chosen miner
+
     metrics = {
         "algorithm": args.alg,
         "dataset": args.data,
@@ -93,15 +73,29 @@ if __name__ == '__main__':
         "mining_time": results["mining_time"]
     }
 
-    if not os.path.exists("files"): # Make sure the files directory exists
-        os.makedirs("files")
-        os.makedirs("files/results")
+    # Make sure the files directory exists
+    os.makedirs("files/results", exist_ok=True)
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
-    write_results(results["itemsets"], args) # Write mined itemsets to .txt
+    if args.save_results:
+        write_results(results["itemsets"], args) # Write mined itemsets to .txt
     print(
         "Build time: " + str(results["build_time"]) + " s" +
         "\nMining time: " + str(results["mining_time"]) + " s" +
         "\nTotal time: " + str(results["build_time"] + results["mining_time"]) + " s" +
         "\nNumber of frequent itemsets: " + str(len(results["itemsets"]))
         )
+        
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Frequent Itemset Mining")
+    parser.add_argument("--alg", choices=ALGORITHMS.keys(), 
+                        required=True, help="Algorithm to run")
+    parser.add_argument("--data", choices=DATASETS, 
+                        required=True, help="Dataset to use")
+    parser.add_argument("--minsup", type=int,
+                        required=True, help="Minimun support")
+    parser.add_argument("--save-results", action="store_true",
+                        default=False, help="Save results to .txt file")
+    args = parser.parse_args()
+
+    run_experiment(args)

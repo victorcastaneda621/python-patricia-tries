@@ -52,8 +52,7 @@ def radix_tree_count_sort(transaction_list: list):
 
     order = {item:i for i, (item, _) in enumerate(support.most_common())}
 
-    sorted_transactions = []
-    for t in transaction_list:
-        sorted_transactions.append(sorted(t, key=order.get))
+    for i in range(len(transaction_list)):
+        transaction_list[i] = sorted(transaction_list[i], key=order.get)
 
-    return sorted_transactions, support, order
+    return transaction_list, support, order

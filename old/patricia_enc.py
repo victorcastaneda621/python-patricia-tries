@@ -1,4 +1,4 @@
-import data_structures.patricia_trie.transaction_to_bit_seq as tbs
+import data_structures.patricia_trie.transaction_to_item_enc as tbi
 
 ## AUXILIARY FUNCTIONS ########################################################
 
@@ -34,6 +34,18 @@ class InternalNode(Node):
         self.skip = skip
         self.left_child = left_child
         self.right_child = right_child
+
+    def set_left_child(self, left_child):
+        self.left_child = left_child
+
+    def set_right_child(self, right_child):
+        self.right_child = right_child
+
+    def get_left_child(self):
+        return self.left_child
+
+    def get_right_child(self):
+        return self.right_child
         
 class LeafNode(Node):
     def __init__(self, key: int, value):
@@ -48,8 +60,9 @@ class PatriciaTrieSeq():
     is in the transaction or not."""
     def __init__(self):
         self.root = None
-        self.item_to_index = None
-        self.index_to_item = None
+        self.bits_per_item = None
+        self.item_to_encoding = None
+        self.encoding_to_item = None
     
     def _get_item_node(self, key: int):
         # If the trie is empty, the key is not in the trie
@@ -66,27 +79,14 @@ class PatriciaTrieSeq():
             else:
                 n = n.right_child
         return n # If the key was not in the trie, we still return some node
-
-    def get_value_from_bits(self, key: int):
-        n = self._get_item_node(key)
-        # If the key was in the trie, we found the corresponding node; 
-        # otherwise it was not
-        if n.key == key:
-            return n.value
-        else:
-            return None
-        
-    def get_value_from_transaction(self, transaction: set):
-        bit_seq = tbs.transaction_to_bit_sequence(transaction, self.item_to_index)
-        return self.get_value_from_bits(bit_seq)
     
     def insert(self, keys: list):
         # If we dont have an order (first insertion), we must obtain it
         if not self.index_to_item:
-            self.index_to_item, self.item_to_index, support = tbs.find_item_order(keys)
+            self.encoding_to_item, self.item_to_encoding, self.bits_per_item, support = tbi.find_item_order_and_codification(keys)
 
         # Turn keys into bit sequences
-        keys = tbs.transaction_list_to_bit_sequences(keys, self.item_to_index)
+        keys = tbi.transaction_list_to_encoding(keys, self.item_to_encoding, self.bits_per_item)
 
         # If the trie is empty, we need to add the first item as root
         if not self.root:
@@ -120,16 +120,16 @@ class PatriciaTrieSeq():
                     self.root = m
                 else:
                     if left_child: # n was the left child
-                        parent.left_child = m
+                        parent.set_left_child(m)
                     else:
-                        parent.right_child = m
+                        parent.set_right_child(m)
                 h = LeafNode(key, 1)
                 if is_bit_i_of_seq_zero(key, j):
-                    m.left_child = h
-                    m.right_child = current
+                    m.set_left_child(h)
+                    m.set_right_child(current)
                 else:
-                    m.left_child = current
-                    m.right_child = h
+                    m.set_left_child(current)
+                    m.set_right_child(h)
                 m.subtrie_leaf_count = current.subtrie_leaf_count + h.subtrie_leaf_count
                 m.subtrie_or_mask = current.subtrie_or_mask | h.subtrie_or_mask
             else: # Node already on the trie, we update the support
@@ -164,7 +164,7 @@ class PatriciaTrieSeq():
         return tbs.bitSequence_to_transaction(seq, self.index_to_item)
     
     def get_support_of_itemset(self, itemset: set):
-        bit_seq = tbs.transaction_to_bit_sequence(itemset, self.item_to_index)
+        bit_seq = tbi.transaction_list_to_encoding(itemset, self.item_to_index)
         # We start at the root and follow edges until arriving at a leaf node
         return self._get_support_of_itemset_at_node(bit_seq, self.root)
     

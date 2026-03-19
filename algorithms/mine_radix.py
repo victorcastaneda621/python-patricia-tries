@@ -28,6 +28,7 @@ def mine_radix(transactions, min_supp):
             else:
                 X[h] = IL[l]
                 h += 1
+                #print("Generate","".join(X[:h]),X)
                 returned.append(X[:h])
 
                 for i in range(l-1,-1,-1):

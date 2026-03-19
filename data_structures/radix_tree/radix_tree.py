@@ -5,6 +5,7 @@ class Node():
         self.prefix = prefix
         self.support = support
         self.is_terminal = is_terminal
+        #self.node_type = node_type # {0,1,2} if isinstance might be slow
 
 class LeafNode(Node):
     def __init__(self, prefix: list, support: int):
@@ -125,10 +126,8 @@ class RadixTree():
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
             return self.root.support if self.root else 0
-        # itemset might not be sorted the way we want it to be
-        sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
         # We start at the root having checked 0 items of the itemset
-        return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
+        return self._get_support_of_itemset_at_node(itemset, self.root, 0, order)
     
     def _get_support_of_itemset_at_node(self, itemset, node, j, order):
         # Check the current node's prefix
