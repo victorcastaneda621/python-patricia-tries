@@ -9,7 +9,8 @@ from algorithms.mine_radix import mine_radix # Will need parameter to ask for on
 ALGORITHMS = {
     "patricia": mine_patricia,
     "list": mine_lists,
-    "radix": mine_radix
+    "radix": lambda t, m: mine_radix(t, m, single_node=False),
+    "radix-single-node": lambda t, m: mine_radix(t, m, single_node=True)
 }
 
 DATASETS = [
