@@ -14,7 +14,6 @@ def mine_radix(transactions, min_supp, single_node: bool):
     # Inserts the transactions and returns the counts of items
     transactions, count, order = radix_tree_count_sort(transactions)
     tree.insert(transactions)
-    tree.print()
 
     IL = list(order.keys())
     h,l = 0,0
