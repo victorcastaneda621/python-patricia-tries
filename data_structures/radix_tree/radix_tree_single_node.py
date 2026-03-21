@@ -88,8 +88,9 @@ class RadixTree():
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
             return self.root.support if self.root else 0
+        sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
         # We start at the root having checked 0 items of the itemset
-        return self._get_support_of_itemset_at_node(itemset, self.root, 0, order)
+        return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
     
     def _get_support_of_itemset_at_node(self, itemset, node, j, order):
         # Check the current node's prefix

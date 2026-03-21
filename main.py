@@ -2,9 +2,9 @@ from ucimlrepo import fetch_ucirepo
 import argparse, os
 
 from general_utils import write_metrics, write_results, row_to_transaction
-from algorithms.mine_patricia import mine_patricia # We'll use a parameter to determine whether bits are Seqs or item encs
+from algorithms.mine_patricia import mine_patricia
 from algorithms.mine_lists import mine_lists
-from algorithms.mine_radix import mine_radix # Will need parameter to ask for one or more types of nodes to be used
+from algorithms.mine_radix import mine_radix
 
 ALGORITHMS = {
     "patricia": mine_patricia,
@@ -75,6 +75,7 @@ def run_experiment(args):
     }
 
     # Make sure the files directory exists
+    os.makedirs("files", exist_ok=True)
     os.makedirs("files/results", exist_ok=True)
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV

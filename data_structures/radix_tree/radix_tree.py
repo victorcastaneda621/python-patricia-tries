@@ -19,9 +19,6 @@ class MultiChildNode(Node):
     def __init__(self, prefix: list, support: int, is_terminal: bool, children: dict = None):
         super().__init__(prefix, support, is_terminal, 2)
         self.children = children if children else {}
-    
-    def add_child(self, key, child: Node):
-        self.children[key] = child
 
 ## RADIX TREE ##############################################################
 
@@ -125,8 +122,9 @@ class RadixTree():
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
             return self.root.support if self.root else 0
+        sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
         # We start at the root having checked 0 items of the itemset
-        return self._get_support_of_itemset_at_node(itemset, self.root, 0, order)
+        return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
     
     def _get_support_of_itemset_at_node(self, itemset, node, j, order):
         # Check the current node's prefix
@@ -191,41 +189,3 @@ class RadixTree():
 #              Roma├── (--> ['Roma'], support: 1)
 # Using the order makes sure that if we see item1 and item4 and item5 as its children,
 # item2 and item3 cannot be anywhere in the subtree
-"""example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}, {"Praga", "Oslo"}, 
-           {"Londres", "Kyiv", "Tallin"}, {"Londres", "Kyiv", "Dublin"}, {"Atenas", "Kyiv"}]
-tree = RadixTree()
-transactions, support, order = radix_tree_count_sort(example)
-print("order: ", order)
-tree.insert(transactions)
-tree.print()
-print('support(["Atenas"]): ' + str(tree.get_support_of_itemset(["Atenas"], order)))
-print('support(["Oslo"]): ' + str(tree.get_support_of_itemset(["Oslo"], order)))
-print('support(["Atenas", "Oslo"]): ' + str(tree.get_support_of_itemset(["Oslo", "Atenas"], order)))
-print('support(["Atenas", "Tallin"]): ' + str(tree.get_support_of_itemset(["Atenas", "Tallin"], order)))
-print('support(["Oslo", "Londres"]): ' + str(tree.get_support_of_itemset(["Oslo", "Londres"], order)))
-print('support(["Oslo", "Roma"]): ' + str(tree.get_support_of_itemset(["Oslo", "Roma"], order)))
-print('support(["Kyiv"]): ' + str(tree.get_support_of_itemset(["Kyiv"], order)))
-print("\n--- Extended Testing ---")
-# Case A: Partial match in the middle of a multi-item prefix
-# Searching for "Londres" when the node is ['Kyiv', 'Londres']
-print('support(["Londres"]): ' + str(tree.get_support_of_itemset(["Londres"], order)))
-# Case B: The "Empty" Itemset (Should theoretically be the total number of transactions)
-print('support([]): ' + str(tree.get_support_of_itemset([], order)))
-# Case C: Itemset that doesn't exist but its items do (in the wrong order or combo)
-# Oslo and Dublin both exist, but never together.
-print('support(["Oslo", "Dublin"]): ' + str(tree.get_support_of_itemset(["Oslo", "Dublin"], order)))
-# Case D: Deeply nested match
-# Checking if it finds "Roma" even though it's at the very tip of a long branch
-print('support(["Roma"]): ' + str(tree.get_support_of_itemset(["Roma"], order)))
-# Case E: Non-existent item entirely (doesnt handle it, but it should never come up)"""
-"""example = [
-    {"A", "B", "C", "D"},
-    {"A", "B"},
-    {"A", "B", "C"}
-]
-transactions, support, order = radix_tree_count_sort(example)
-tree = RadixTree()
-print(order)
-print(transactions)
-tree.insert(transactions)
-tree.print()"""
