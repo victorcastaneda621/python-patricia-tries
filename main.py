@@ -71,7 +71,10 @@ def run_experiment(args):
         "dataset": args.data,
         "minsup": args.minsup,
         "build_time": results["build_time"],
-        "mining_time": results["mining_time"]
+        "mining_time": results["mining_time"],
+        "node_count": results["node_count"],
+        "max_depth": results["max_depth"],
+        "number_itemsets": len(results["itemsets"])
     }
 
     # Make sure the files directory exists

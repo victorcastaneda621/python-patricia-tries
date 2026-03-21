@@ -26,7 +26,10 @@ def write_metrics(metrics, file):
                 "dataset",
                 "minsup",
                 "build_time",
-                "mining_time"])
+                "mining_time",
+                "node_count",
+                "max_depth",
+                "number_itemsets"])
 
         if not file_exists:
             writer.writeheader()

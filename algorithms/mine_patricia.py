@@ -1,10 +1,10 @@
 import time
-import data_structures.patricia_trie.patricia_seq as ptSeq
+import data_structures.patricia_trie.patricia_trie as pt
 
 def mine_patricia(transactions, min_supp):
     before_trie_build = time.perf_counter()
 
-    trie = ptSeq.PatriciaTrieSeq()
+    trie = pt.PatriciaTrie()
 
     # Inserts the transactions and returns the counts of items
     count = trie.insert(transactions)
@@ -36,6 +36,9 @@ def mine_patricia(transactions, min_supp):
                     count[IL[i]] = trie.get_support_of_itemset_as_bit_seq((1 << i) | X_as_bit_seq)
                 l=0
     after_mining = time.perf_counter()
+    node_count, max_depth = trie.count_nodes_and_max_depth()
     return {"build_time": after_trie_build - before_trie_build,
             "mining_time": after_mining - after_trie_build,
-            "itemsets": returned}
+            "itemsets": returned,
+            "node_count": node_count,
+            "max_depth": max_depth}

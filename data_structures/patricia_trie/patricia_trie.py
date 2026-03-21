@@ -24,11 +24,13 @@ def first_difference(seq1, seq2):
 ## NODE TYPES #################################################################
 
 class Node():
+    __slots__ = ['subtrie_leaf_count', 'subtrie_or_mask']
     def __init__(self, subtrie_leaf_count: int, subtrie_or_mask: int):
         self.subtrie_leaf_count = subtrie_leaf_count
         self.subtrie_or_mask = subtrie_or_mask
 
 class InternalNode(Node):
+    __slots__ = ['skip', 'left_child', 'right_child']
     def __init__(self, skip: int, left_child: Node, right_child: Node, subtrie_leaf_count: int, subtrie_or_mask: int):
         super().__init__(subtrie_leaf_count, subtrie_or_mask)
         self.skip = skip
@@ -36,14 +38,15 @@ class InternalNode(Node):
         self.right_child = right_child
         
 class LeafNode(Node):
+    __slots__ = ['key', 'value']
     def __init__(self, key: int, value):
         super().__init__(value, key)
         self.key = key
         self.value = value # Amount of transactions equal to this one
 
 ## PATRICIA TRIE ##############################################################
-class PatriciaTrieSeq():
-    """PatriciaTrieSeq is a Patricia trie where transactions are transformed
+class PatriciaTrie():
+    """PatriciaTrie is a Patricia trie where transactions are transformed
     into bit sequences where bit j indicates if item j in the global order
     is in the transaction or not."""
     def __init__(self):
@@ -195,18 +198,18 @@ class PatriciaTrieSeq():
             # We should stop exploring this subtrie
             return 0
         
-    def count_nodes(self):
-        return self._count_nodes(self.root)
+    def count_nodes_and_max_depth(self):
+        return self._count_nodes_and_max_depth(self.root)
     
-    def _count_nodes(self, node):
+    def _count_nodes_and_max_depth(self, node):
         if isinstance(node, LeafNode):
-            return 1
+            return (1, 1)
         else: 
-            left_count = self._count_nodes(node.left_child)
-            right_count = self._count_nodes(node.right_child)
-            return left_count + right_count
+            left_count = self._count_nodes_and_max_depth(node.left_child)
+            right_count = self._count_nodes_and_max_depth(node.right_child)
+            return (1 + left_count[0] + right_count[0], 1 + max(left_count[1], right_count[1]))
 
-## PatriciaTrieSeq ############################################################
+## PatriciaTrie ############################################################
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}] 
 # has supports [Atenas:1, Roma:2, Oslo:3], so it becomes [0b111, 0b011, 0b001]. 
 # The trie is:

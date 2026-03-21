@@ -39,6 +39,9 @@ def mine_radix(transactions, min_supp, single_node: bool):
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
     after_mining = time.perf_counter()
+    node_count, max_depth = tree.count_nodes_and_max_depth()
     return {"build_time": after_trie_build - before_trie_build,
             "mining_time": after_mining - after_trie_build,
-            "itemsets": returned}
+            "itemsets": returned,
+            "node_count": node_count,
+            "max_depth": max_depth}

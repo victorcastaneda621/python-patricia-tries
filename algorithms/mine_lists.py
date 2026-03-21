@@ -46,5 +46,7 @@ def mine_lists(transactions, min_supp):
     after_mining = time.perf_counter()
     return {"build_time": after_build - before_build,
             "mining_time": after_mining - after_build,
-            "itemsets": returned}
+            "itemsets": returned,
+            "node_count": "-",
+            "max_depth": "-"}
 

@@ -136,6 +136,23 @@ class RadixTree():
     def print(self):
         self._print(self.root, 0, str(self.root.prefix))
 
+    def count_nodes_and_max_depth(self):
+        return self._count_nodes_and_max_depth(self.root)
+    
+    def _count_nodes_and_max_depth(self, node):
+        if not node.children:
+            return (1, 1)
+        else: 
+            total_nodes = 1
+            max_depth = 1
+    
+            for child in node.children.values():
+                child_count, child_depth = self._count_nodes_and_max_depth(child)
+                total_nodes += child_count
+                max_depth = max(max_depth, child_depth)
+
+            return total_nodes, max_depth
+
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 #
 #·├── (--> [], support: 3)
