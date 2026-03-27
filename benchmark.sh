@@ -21,6 +21,6 @@ DATASET=${datasets[$SLURM_ARRAY_TASK_ID]}
 
 echo "Starting: Algorithm=$ALG | Dataset=$DATASET | Minsup=$MINSUP"
 
-python3 main.py --alg "$ALG" --data "$DATASET" --minsup "$MINSUP" --benchmark
+python3 PatriciaMine.py --alg "$ALG" --data "$DATASET" --minsup "$MINSUP" --benchmark
 
 echo "Finished"
