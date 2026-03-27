@@ -1,4 +1,4 @@
-import argparse, os, resource
+import argparse, os
 
 from general_utils import write_metrics, write_results
 from algorithms.mine_patricia import mine_patricia
@@ -17,6 +17,8 @@ DATASETS = [
     "mushroom",
     "connect4",
     "pumsb",
+    "pumsb_star",
+    "kosarak",
     "artificial_1",
 ]
 
@@ -45,6 +47,10 @@ def load_dataset(name):
             transactions = load_local_dataset(os.path.join("datasets", "T10I4D100k.dat"))
         case "mushroom":
             transactions = load_local_dataset(os.path.join("datasets", "mushroom.dat"))
+        case "kosarak":
+            transactions = load_local_dataset(os.path.join("datasets", "kosarak.dat"))
+        case "pumsb_star":
+            transactions = load_local_dataset(os.path.join("datasets", "pumsb_star.dat"))
         case _:
             raise ValueError(f"Unknown dataset: {name}")
     return transactions
@@ -54,9 +60,6 @@ def run_experiment(args):
     algorithm = ALGORITHMS[args.alg]
 
     results = algorithm(transactions, args.minsup) # Call the chosen miner
-
-    peak_mem_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-    print(peak_mem_mb)
 
     metrics = {
         "algorithm": args.alg,
@@ -74,7 +77,7 @@ def run_experiment(args):
     os.makedirs("files/results", exist_ok=True)
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
-    if args.benchmark:
+    if not args.benchmark:
         write_results(results["itemsets"], args) # Write mined itemsets to .txt
     print(
         "Build time: " + str(results["build_time"]) + " s" +

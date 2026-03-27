@@ -6,15 +6,20 @@
 #SBATCH --mem-per-cpu=4096        
 #SBATCH -n 1                      
 #SBATCH -c 1
-#SBATCH --array=0-4
+#SBATCH --array=0-3
 
 mkdir -p logs
 
-ALG="radix"
+ALG="list"
 MINSUP=1
 
 datasets=(
-    "small_cities"
+    "mushroom"
+    "connect4"
+    "pumsb"
+    "artificial_1"
+    "kosarak"
+    "pumsb_star"
 )
 
 DATASET=${datasets[$SLURM_ARRAY_TASK_ID]}
