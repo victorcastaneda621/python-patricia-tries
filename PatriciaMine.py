@@ -1,7 +1,6 @@
-from ucimlrepo import fetch_ucirepo
-import argparse, os
+import argparse, os, resource
 
-from general_utils import write_metrics, write_results, row_to_transaction
+from general_utils import write_metrics, write_results
 from algorithms.mine_patricia import mine_patricia
 from algorithms.mine_lists import mine_lists
 from algorithms.mine_radix import mine_radix
@@ -18,9 +17,7 @@ DATASETS = [
     "mushroom",
     "connect4",
     "pumsb",
-    "connect4_fimi",
     "artificial_1",
-    "mushroom_fimi"
 ]
 
 METRICS_FILE = "files/metrics.csv"
@@ -40,22 +37,14 @@ def load_dataset(name):
             transactions = [{"Atenas", "Oslo", "Roma", "Viena"}, {"Oslo"}, 
                             {"Oslo", "Roma", "Viena"}, {"Oslo"}, {"Londres", "Madrid"}, 
                             {"Londres", "Madrid", "Oslo"}]
-        case "mushroom":
-            mushroom = fetch_ucirepo(id=73)
-            dataset = mushroom.data.features
-            transactions = [row_to_transaction(row) for _, row in dataset.iterrows()]
-        case "connect4":
-            connect_4 = fetch_ucirepo(id=26)
-            dataset = connect_4.data.features
-            transactions = [row_to_transaction(row) for _, row in dataset.iterrows()]
         case "pumsb":
-            transactions = load_local_dataset("datasets/pumsb.dat")
-        case "connect4_fimi":
-            transactions = load_local_dataset("datasets/connect.dat")
+            transactions = load_local_dataset(os.path.join("datasets", "pumsb.dat"))
+        case "connect4":
+            transactions = load_local_dataset(os.path.join("datasets", "connect.dat"))
         case "artificial_1":
-            transactions = load_local_dataset("datasets/T10I4D100k.dat")
-        case "mushroom_fimi":
-            transactions = load_local_dataset("datasets/mushroom.dat")
+            transactions = load_local_dataset(os.path.join("datasets", "T10I4D100k.dat"))
+        case "mushroom":
+            transactions = load_local_dataset(os.path.join("datasets", "mushroom.dat"))
         case _:
             raise ValueError(f"Unknown dataset: {name}")
     return transactions
@@ -65,6 +54,9 @@ def run_experiment(args):
     algorithm = ALGORITHMS[args.alg]
 
     results = algorithm(transactions, args.minsup) # Call the chosen miner
+
+    peak_mem_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    print(peak_mem_mb)
 
     metrics = {
         "algorithm": args.alg,
@@ -82,7 +74,7 @@ def run_experiment(args):
     os.makedirs("files/results", exist_ok=True)
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
-    if args.save_results:
+    if args.benchmark:
         write_results(results["itemsets"], args) # Write mined itemsets to .txt
     print(
         "Build time: " + str(results["build_time"]) + " s" +
@@ -99,8 +91,8 @@ if __name__ == '__main__':
                         required=True, help="Dataset to use")
     parser.add_argument("--minsup", type=int,
                         required=True, help="Minimun support")
-    parser.add_argument("--save-results", action="store_true",
-                        default=False, help="Save results to .txt file")
+    parser.add_argument("--benchmark", action="store_true", 
+                        help="Run in benchmark mode (skip saving results, log memory)")
     args = parser.parse_args()
 
     run_experiment(args)

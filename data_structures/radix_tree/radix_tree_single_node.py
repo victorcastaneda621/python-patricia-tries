@@ -1,10 +1,10 @@
 
 class RadixNode():
-    __slots__ = ['children', 'prefix', 'support', 'is_terminal']
-    def __init__(self, prefix: list, support: int, is_terminal: bool, children: dict = None):
+    __slots__ = ['children', 'prefix', 'count', 'is_terminal']
+    def __init__(self, prefix: list, count: int, is_terminal: bool, children: dict = None):
         self.children = children if children else {}
         self.prefix = prefix
-        self.support = support
+        self.count = count
         self.is_terminal = is_terminal
 
 ## RADIX TREE ##############################################################
@@ -45,7 +45,7 @@ class RadixTree():
             finished_adding_current_key = False
             while not finished_adding_current_key:
                 if key == n.prefix:
-                    n.support += 1
+                    n.count += 1
                     finished_adding_current_key = True
                 else:  
                     i = self._get_common_prefix_length(n.prefix, key)
@@ -53,13 +53,13 @@ class RadixTree():
                     # len(key) or len(n.prefix)
                     if i == len(key):
                         # len(key) < len(n.prefix) AND key = n.prefix[:i]
-                        m = RadixNode(n.prefix[:i], n.support + 1, True, {n.prefix[i]:n})
+                        m = RadixNode(n.prefix[:i], n.count + 1, True, {n.prefix[i]:n})
                         n.prefix = n.prefix[i:]
                         self._replace_child(n_parent, m)
                         finished_adding_current_key = True
                     elif i == len(n.prefix):
                         # len(key) > len(n.prefix) AND key[:i] = n.prefix
-                        n.support += 1
+                        n.count += 1
                         if key[i] in n.children:
                             n_parent = n
                             n = n.children[key[i]]
@@ -72,7 +72,7 @@ class RadixTree():
                     else:
                         # The first difference was found before 
                         # the end of key or n.prefix
-                        m = RadixNode(n.prefix[:i], n.support + 1, False)
+                        m = RadixNode(n.prefix[:i], n.count + 1, False)
                         m.children[n.prefix[i]] = n
                         m.children[key[i]] = RadixNode(key[i:], 1, True)
                         self._replace_child(n_parent, m)
@@ -87,7 +87,7 @@ class RadixTree():
 
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
-            return self.root.support if self.root else 0
+            return self.root.count if self.root else 0
         sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
         # We start at the root having checked 0 items of the itemset
         return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
@@ -97,7 +97,7 @@ class RadixTree():
         for i in range(0, len(node.prefix)):
             # Stop if we have already checked every item from the itemset
             if j == len(itemset): 
-                return node.support
+                return node.count
             elif node.prefix[i] == itemset[j]:
                 j += 1 # We have to check the next item in the itemset
             elif self._compare_to(node.prefix[i], itemset[j], order) == 1: 
@@ -105,7 +105,7 @@ class RadixTree():
                 return 0
         # Stop if we have already checked every item from the itemset
             if j == len(itemset): 
-                return node.support
+                return node.count
         
         # Now, if we didn't return, we must continue checking this node's children
         result = 0
@@ -126,10 +126,10 @@ class RadixTree():
         indentation = "       " * i
         if not n.children:
             print(indentation + item + "├── (" + "--> " +
-                  str(n.prefix) + ", support: " + str(n.support) + ")")
+                  str(n.prefix) + ", count: " + str(n.count) + ")")
         else:
             print(indentation + item + "├── (" + "--> " +
-                  str(n.prefix) + ", support: " + str(n.support) + ")")
+                  str(n.prefix) + ", count: " + str(n.count) + ")")
             for item, child in n.children.items():
                 self._print(child, i+1, item)
         
@@ -152,6 +152,22 @@ class RadixTree():
                 max_depth = max(max_depth, child_depth)
 
             return total_nodes, max_depth
+    
+    def count_total_elements(self):
+        if not self.root:
+            return 0
+        return self._count_total_elements(self.root)
+
+    def _count_total_elements(self, node):
+        # Contamos los elementos en el prefijo de este nodo
+        total = len(node.prefix)
+        
+        if not node.children: # Leaf
+            return total
+        else:
+            for child in node.children.values():
+                total += self._count_total_elements(child)
+            return total
 
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 #
@@ -160,41 +176,3 @@ class RadixTree():
 #              Roma├── (--> ['Roma'], support: 1)
 # Using the order makes sure that if we see item1 and item4 and item5 as its children,
 # item2 and item3 cannot be anywhere in the subtree
-"""example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}, {"Praga", "Oslo"}, 
-           {"Londres", "Kyiv", "Tallin"}, {"Londres", "Kyiv", "Dublin"}, {"Atenas", "Kyiv"}]
-tree = RadixTree()
-transactions, support, order = radix_tree_count_sort(example)
-print("order: ", order)
-tree.insert(transactions)
-tree.print()
-print('support(["Atenas"]): ' + str(tree.get_support_of_itemset(["Atenas"], order)))
-print('support(["Oslo"]): ' + str(tree.get_support_of_itemset(["Oslo"], order)))
-print('support(["Atenas", "Oslo"]): ' + str(tree.get_support_of_itemset(["Oslo", "Atenas"], order)))
-print('support(["Atenas", "Tallin"]): ' + str(tree.get_support_of_itemset(["Atenas", "Tallin"], order)))
-print('support(["Oslo", "Londres"]): ' + str(tree.get_support_of_itemset(["Oslo", "Londres"], order)))
-print('support(["Oslo", "Roma"]): ' + str(tree.get_support_of_itemset(["Oslo", "Roma"], order)))
-print('support(["Kyiv"]): ' + str(tree.get_support_of_itemset(["Kyiv"], order)))
-print("\n--- Extended Testing ---")
-# Case A: Partial match in the middle of a multi-item prefix
-# Searching for "Londres" when the node is ['Kyiv', 'Londres']
-print('support(["Londres"]): ' + str(tree.get_support_of_itemset(["Londres"], order)))
-# Case B: The "Empty" Itemset (Should theoretically be the total number of transactions)
-print('support([]): ' + str(tree.get_support_of_itemset([], order)))
-# Case C: Itemset that doesn't exist but its items do (in the wrong order or combo)
-# Oslo and Dublin both exist, but never together.
-print('support(["Oslo", "Dublin"]): ' + str(tree.get_support_of_itemset(["Oslo", "Dublin"], order)))
-# Case D: Deeply nested match
-# Checking if it finds "Roma" even though it's at the very tip of a long branch
-print('support(["Roma"]): ' + str(tree.get_support_of_itemset(["Roma"], order)))
-# Case E: Non-existent item entirely (doesnt handle it, but it should never come up)
-example = [
-    {"A", "B", "C", "D"},
-    {"A", "B"},
-    {"A", "B", "C"}
-]
-transactions, support, order = radix_tree_count_sort(example)
-tree = RadixTree()
-print(order)
-print(transactions)
-tree.insert(transactions)
-tree.print()"""

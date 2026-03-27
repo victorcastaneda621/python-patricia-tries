@@ -1,23 +1,27 @@
 
 class Node():
-    def __init__(self, prefix: list, support: int, is_terminal: bool, node_type: int):
+    __slots__ = ['prefix', 'count', 'is_terminal', 'node_type']
+    def __init__(self, prefix: list, count: int, is_terminal: bool, node_type: int):
         self.prefix = prefix
-        self.support = support
+        self.count = count
         self.is_terminal = is_terminal
         self.node_type = node_type # {0,1,2} if isinstance might be slow
 
 class LeafNode(Node):
-    def __init__(self, prefix: list, support: int):
-        super().__init__(prefix, support, True, 0)
+    __slots__ = []
+    def __init__(self, prefix: list, count: int):
+        super().__init__(prefix, count, True, 0)
 
 class SingleChildNode(Node):
-    def __init__(self, prefix: list, support: int, is_terminal: bool, child: Node = None):
-        super().__init__(prefix, support, is_terminal, 1)
+    __slots__ = ['child']
+    def __init__(self, prefix: list, count: int, is_terminal: bool, child: Node = None):
+        super().__init__(prefix, count, is_terminal, 1)
         self.child = child
 
 class MultiChildNode(Node):
-    def __init__(self, prefix: list, support: int, is_terminal: bool, children: dict = None):
-        super().__init__(prefix, support, is_terminal, 2)
+    __slots__ = ['children']
+    def __init__(self, prefix: list, count: int, is_terminal: bool, children: dict = None):
+        super().__init__(prefix, count, is_terminal, 2)
         self.children = children if children else {}
 
 ## RADIX TREE ##############################################################
@@ -60,7 +64,7 @@ class RadixTree():
             finished_adding_current_key = False
             while not finished_adding_current_key:
                 if key == n.prefix:
-                    n.support += 1
+                    n.count += 1
                     finished_adding_current_key = True
                 else:  
                     i = self._get_common_prefix_length(n.prefix, key)
@@ -68,16 +72,16 @@ class RadixTree():
                     # len(key) or len(n.prefix)
                     if i == len(key):
                         # len(key) < len(n.prefix) AND key = n.prefix[:i]
-                        m = SingleChildNode(n.prefix[:i], n.support + 1, True, n)
+                        m = SingleChildNode(n.prefix[:i], n.count + 1, True, n)
                         n.prefix = n.prefix[i:]
                         self._replace_child(n_parent, m)
                         finished_adding_current_key = True
                     elif i == len(n.prefix):
                         # len(key) > len(n.prefix) AND key[:i] = n.prefix
-                        n.support += 1
+                        n.count += 1
                         if n.node_type == 0:
                             m = LeafNode(key[i:], 1)
-                            new_n = SingleChildNode(n.prefix, n.support, True, m)
+                            new_n = SingleChildNode(n.prefix, n.count, True, m)
                             self._replace_child(n_parent, new_n)
 
                             finished_adding_current_key = True
@@ -88,7 +92,7 @@ class RadixTree():
                                 key = key[i:]
                                 continue
                             else:
-                                m = MultiChildNode(n.prefix, n.support, n.is_terminal)
+                                m = MultiChildNode(n.prefix, n.count, n.is_terminal)
                                 m.children[n.child.prefix[0]] = n.child
                                 m.children[key[i]] = LeafNode(key[i:], 1)
                                 self._replace_child(n_parent, m)
@@ -106,7 +110,7 @@ class RadixTree():
                     else:
                         # The first difference was found before 
                         # the end of key or n.prefix
-                        m = MultiChildNode(n.prefix[:i], n.support + 1, False)
+                        m = MultiChildNode(n.prefix[:i], n.count + 1, False)
                         m.children[n.prefix[i]] = n
                         m.children[key[i]] = LeafNode(key[i:], 1)
                         self._replace_child(n_parent, m)
@@ -121,7 +125,7 @@ class RadixTree():
 
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
-            return self.root.support if self.root else 0
+            return self.root.count if self.root else 0
         sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
         # We start at the root having checked 0 items of the itemset
         return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
@@ -131,7 +135,7 @@ class RadixTree():
         for i in range(0, len(node.prefix)):
             # Stop if we have already checked every item from the itemset
             if j == len(itemset): 
-                return node.support
+                return node.count
             elif node.prefix[i] == itemset[j]:
                 j += 1 # We have to check the next item in the itemset
             elif self._compare_to(node.prefix[i], itemset[j], order) == 1: 
@@ -139,7 +143,7 @@ class RadixTree():
                 return 0
         # Stop if we have already checked every item from the itemset
             if j == len(itemset): 
-                return node.support
+                return node.count
         
         # Now, if we didn't return, we must continue checking this node's children
         result = 0
@@ -167,15 +171,15 @@ class RadixTree():
         indentation = "       " * i
         if isinstance(n, LeafNode):
             print(indentation + item + "├── (" + "--> " +
-                  str(n.prefix) + ", support: " + str(n.support) + ")")
+                  str(n.prefix) + ", support: " + str(n.count) + ")")
         elif isinstance(n, SingleChildNode):
             print(indentation + item + "├── (" + "--> " +
-                  str(n.prefix) + ", support: " + str(n.support) + ")")
+                  str(n.prefix) + ", support: " + str(n.count) + ")")
             label = n.child.prefix[0] if n.child.prefix else "[]"
             self._print(n.child, i+1, label)
         else:
             print(indentation + item + "├── (" + "--> " +
-                  str(n.prefix) + ", support: " + str(n.support) + ")")
+                  str(n.prefix) + ", support: " + str(n.count) + ")")
             for item, child in n.children.items():
                 self._print(child, i+1, item)
         
