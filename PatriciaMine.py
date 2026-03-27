@@ -18,7 +18,6 @@ DATASETS = [
     "connect4",
     "pumsb",
     "pumsb_star",
-    "kosarak",
     "artificial_1",
 ]
 
@@ -47,8 +46,6 @@ def load_dataset(name):
             transactions = load_local_dataset(os.path.join("datasets", "T10I4D100k.dat"))
         case "mushroom":
             transactions = load_local_dataset(os.path.join("datasets", "mushroom.dat"))
-        case "kosarak":
-            transactions = load_local_dataset(os.path.join("datasets", "kosarak.dat"))
         case "pumsb_star":
             transactions = load_local_dataset(os.path.join("datasets", "pumsb_star.dat"))
         case _:
