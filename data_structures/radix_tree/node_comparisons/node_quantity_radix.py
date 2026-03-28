@@ -37,16 +37,16 @@ for dataset in ["TEST", "MUSHROOM", "CONNECT4", "PUMSB", "T10I4D100K"]:
 
     t_random_local = [random.sample(list(t), len(t)) for t in transactions]
 
-    support_single = rtree_single_node.RadixTree()
+    support_single = rtree_single_node.RadixTreeSingleNode()
     support_single.insert(t_support)
 
-    alph_single = rtree_single_node.RadixTree()
+    alph_single = rtree_single_node.RadixTreeSingleNode()
     alph_single.insert(t_alph)
 
-    random_single = rtree_single_node.RadixTree()
+    random_single = rtree_single_node.RadixTreeSingleNode()
     random_single.insert(t_random)
 
-    random_local = rtree_single_node.RadixTree()
+    random_local = rtree_single_node.RadixTreeSingleNode()
     random_local.insert(t_random_local)
 
     print(f"{dataset} SINGLE-NODE (Nodos totales | total elements ) -------------------------------")

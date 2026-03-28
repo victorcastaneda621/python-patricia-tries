@@ -1,5 +1,5 @@
 import time
-import data_structures.radix_tree.radix_tree as rtree
+import data_structures.radix_tree.radix_tree_multi_node as rtree_multi_node
 import data_structures.radix_tree.radix_tree_single_node as rtree_single_node
 from general_utils import radix_tree_count_sort
 
@@ -7,9 +7,9 @@ def mine_radix(transactions, min_supp, single_node: bool):
     before_trie_build = time.perf_counter()
 
     if single_node:
-        tree = rtree_single_node.RadixTree()
+        tree = rtree_single_node.RadixTreeSingleNode()
     else:
-        tree = rtree.RadixTree()
+        tree = rtree_multi_node.RadixTreeMultiNode()
 
     # Inserts the transactions and returns the counts of items
     transactions, count, order = radix_tree_count_sort(transactions)

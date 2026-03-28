@@ -9,7 +9,7 @@ class RadixNode():
 
 ## RADIX TREE ##############################################################
 
-class RadixTree():
+class RadixTreeSingleNode():
     def __init__(self):
         self.root = None
     
@@ -88,24 +88,23 @@ class RadixTree():
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
             return self.root.count if self.root else 0
-        sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
-        # We start at the root having checked 0 items of the itemset
-        return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
+        # We start at the root with all items of the itemset needing to be checked
+        return self._get_support_of_itemset_at_node(itemset, self.root, len(itemset) - 1, order)
     
     def _get_support_of_itemset_at_node(self, itemset, node, j, order):
         # Check the current node's prefix
         for i in range(0, len(node.prefix)):
             # Stop if we have already checked every item from the itemset
-            if j == len(itemset): 
+            if j < 0: 
                 return node.count
             elif node.prefix[i] == itemset[j]:
-                j += 1 # We have to check the next item in the itemset
+                j -= 1 # We have to check the next item in the itemset
             elif self._compare_to(node.prefix[i], itemset[j], order) == 1: 
                 # Entering here means that this node is missing some items of the itemset
                 return 0
         # Stop if we have already checked every item from the itemset
-            if j == len(itemset): 
-                return node.count
+        if j < 0: 
+            return node.count
         
         # Now, if we didn't return, we must continue checking this node's children
         result = 0
@@ -113,13 +112,12 @@ class RadixTree():
             # Then it has no children, so we return while having not
             # found the full itemset
             return 0
-        else: # It is a MultiChildNode
+        else:
             # We check any of its children if it looks promising
             for child_key in node.children.keys():
                 if self._compare_to(child_key, itemset[j], order) != 1:
                     result += self._get_support_of_itemset_at_node(
-                        itemset, node.children[child_key], j, order
-                        )
+                        itemset, node.children[child_key], j, order)
         return result
         
     def _print(self, n, i, item):
@@ -159,7 +157,7 @@ class RadixTree():
         return self._count_total_elements(self.root)
 
     def _count_total_elements(self, node):
-        # Contamos los elementos en el prefijo de este nodo
+        # We count all elements on this node's prefix
         total = len(node.prefix)
         
         if not node.children: # Leaf

@@ -26,7 +26,7 @@ class MultiChildNode(Node):
 
 ## RADIX TREE ##############################################################
 
-class RadixTree():
+class RadixTreeMultiNode():
     def __init__(self):
         self.root = None
     
@@ -126,24 +126,23 @@ class RadixTree():
     def get_support_of_itemset(self, itemset: list, order):
         if not itemset: # Empty itemset case
             return self.root.count if self.root else 0
-        sorted_itemset = sorted(itemset, key=lambda x: order[x]) 
         # We start at the root having checked 0 items of the itemset
-        return self._get_support_of_itemset_at_node(sorted_itemset, self.root, 0, order)
+        return self._get_support_of_itemset_at_node(itemset, self.root, len(itemset) - 1, order)
     
     def _get_support_of_itemset_at_node(self, itemset, node, j, order):
         # Check the current node's prefix
         for i in range(0, len(node.prefix)):
             # Stop if we have already checked every item from the itemset
-            if j == len(itemset): 
+            if j < 0: 
                 return node.count
             elif node.prefix[i] == itemset[j]:
-                j += 1 # We have to check the next item in the itemset
+                j -= 1 # We have to check the next item in the itemset
             elif self._compare_to(node.prefix[i], itemset[j], order) == 1: 
                 # Entering here means that this node is missing some items of the itemset
                 return 0
         # Stop if we have already checked every item from the itemset
-            if j == len(itemset): 
-                return node.count
+        if j < 0: 
+            return node.count
         
         # Now, if we didn't return, we must continue checking this node's children
         result = 0

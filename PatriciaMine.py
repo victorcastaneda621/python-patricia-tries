@@ -8,7 +8,7 @@ from algorithms.mine_radix import mine_radix
 ALGORITHMS = {
     "patricia": mine_patricia,
     "list": mine_lists,
-    "radix": lambda t, m: mine_radix(t, m, single_node=False),
+    "radix-multi-node": lambda t, m: mine_radix(t, m, single_node=False),
     "radix-single-node": lambda t, m: mine_radix(t, m, single_node=True)
 }
 
