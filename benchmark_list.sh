@@ -2,7 +2,7 @@
 #SBATCH -J patricia_mine          
 #SBATCH -o logs/bench_%A_%a.out   
 #SBATCH -e logs/bench_%A_%a.err   
-#SBATCH -t 15:00:00               
+#SBATCH -t 24:00:00               
 #SBATCH --mem-per-cpu=4096        
 #SBATCH -n 1                      
 #SBATCH -c 1
@@ -15,15 +15,15 @@ ALG="list"
 case $SLURM_ARRAY_TASK_ID in
     0)
         DATASET="connect4"
-        MINSUP=40535
+        MINSUP=55000
         ;;
     1)
         DATASET="pumsb"
-        MINSUP=29400
+        MINSUP=35000
         ;;
     2)
         DATASET="pumsb_star"
-        MINSUP=9810
+        MINSUP=20000
         ;;
 esac
 # ------------------------------------
