@@ -49,7 +49,7 @@ for dataset in ["TEST", "MUSHROOM", "CONNECT4", "PUMSB", "T10I4D100K"]:
     random_local = rtree_single_node.RadixTreeSingleNode()
     random_local.insert(t_random_local)
 
-    print(f"{dataset} SINGLE-NODE (Nodos totales | total elements ) -------------------------------")
+    print(f"{dataset} SINGLE-NODE (Total Nodes | Total Elements ) -------------------------------")
     print(f"Support:      {support_single.count_nodes_and_max_depth()[0]}" + " | " + str(support_single.count_total_elements()))
     print(f"Alphabetical: {alph_single.count_nodes_and_max_depth()[0]}" + " | " + str(alph_single.count_total_elements()))
     print(f"Random:       {random_single.count_nodes_and_max_depth()[0]}" + " | " + str(random_single.count_total_elements()))

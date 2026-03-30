@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=4096        
 #SBATCH -n 1                      
 #SBATCH -c 1
-#SBATCH --array=0-2
+#SBATCH --array=0-1
 
 mkdir -p logs
 
@@ -14,16 +14,12 @@ ALG="list"
 
 case $SLURM_ARRAY_TASK_ID in
     0)
-        DATASET="connect4"
-        MINSUP=55000
+        DATASET="pumsb"
+        MINSUP=90000
         ;;
     1)
-        DATASET="pumsb"
-        MINSUP=35000
-        ;;
-    2)
         DATASET="pumsb_star"
-        MINSUP=20000
+        MINSUP=14000
         ;;
 esac
 # ------------------------------------

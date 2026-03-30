@@ -119,6 +119,11 @@ class RadixTreeSingleNode():
                     result += self._get_support_of_itemset_at_node(
                         itemset, node.children[child_key], j, order)
         return result
+    
+    def get_support_t_list(item, itemset, tlist):
+        #basically you get tlist[item] = {node1, node3}. You follow those pointers and traverse upwards
+        # (we need node.parent). If you find everything else in itemsets, you add nodeX.count.
+        pass
         
     def _print(self, n, i, item):
         indentation = "       " * i
