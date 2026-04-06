@@ -24,12 +24,12 @@ case $SLURM_ARRAY_TASK_ID in
     2)
         ALG="radix-SN-BU"
         DATASET="pumsb"
-        MINSUP=29400
+        MINSUP=35000
         ;;
     3)
         ALG="radix-SN-BU"
         DATASET="pumsb_star"
-        MINSUP=9810
+        MINSUP=14000
         ;;
     4)
         ALG="radix-SN-BU"
@@ -49,12 +49,12 @@ case $SLURM_ARRAY_TASK_ID in
     7)
         ALG="radix-SN-TD"
         DATASET="pumsb"
-        MINSUP=29400
+        MINSUP=35000
         ;;
     8)
         ALG="radix-SN-TD"
         DATASET="pumsb_star"
-        MINSUP=9810
+        MINSUP=14000
         ;;
     9)
         ALG="radix-SN-TD"
