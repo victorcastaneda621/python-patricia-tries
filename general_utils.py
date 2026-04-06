@@ -60,15 +60,3 @@ def write_results(itemsets: list, args):
     with open(filename, "w") as f:
         for itemset in itemsets:
             f.write(",".join(itemset) + "\n")
-
-def radix_tree_count_sort(transaction_list: list):
-    support = Counter()
-    for t in transaction_list:
-        support.update(t)
-
-    order = {item:i for i, (item, _) in enumerate(support.most_common())}
-
-    for i in range(len(transaction_list)):
-        transaction_list[i] = sorted(transaction_list[i], key=order.get)
-
-    return transaction_list, support, order

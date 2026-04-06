@@ -1,5 +1,5 @@
-import data_structures.radix_tree.radix_tree_single_node as rtree_single_node
-from general_utils import radix_tree_count_sort
+import data_structures.radix_tree.radix_tree_SN_TD as rtree_single_node
+from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 import random
 
 def load_local_dataset(path):
@@ -11,16 +11,18 @@ def load_local_dataset(path):
                 transactions.append({str(x) for x in line.split()})
     return transactions
 
-for dataset in ["TEST", "MUSHROOM", "CONNECT4", "PUMSB", "T10I4D100K"]:
+for dataset in ["TEST"]:
     match dataset:
         case "TEST":
             transactions = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
-        case "PUMSB":
-            transactions = load_local_dataset("datasets/pumsb.dat")
-        case "CONNECT4":
-            transactions = load_local_dataset("datasets/connect.dat")
         case "MUSHROOM":
             transactions = load_local_dataset("datasets/mushroom.dat")
+        case "CONNECT4":
+            transactions = load_local_dataset("datasets/connect.dat")
+        case "PUMSB":
+            transactions = load_local_dataset("datasets/pumsb.dat")
+        case "PUMSB_STAR":
+            transactions = load_local_dataset("datasets/pumsb_star.dat")
         case "T10I4D100K":
             transactions = load_local_dataset("datasets/T10I4D100K.dat")
 
@@ -37,16 +39,16 @@ for dataset in ["TEST", "MUSHROOM", "CONNECT4", "PUMSB", "T10I4D100K"]:
 
     t_random_local = [random.sample(list(t), len(t)) for t in transactions]
 
-    support_single = rtree_single_node.RadixTreeSingleNode()
+    support_single = rtree_single_node.RadixTree_SN_TD()
     support_single.insert(t_support)
 
-    alph_single = rtree_single_node.RadixTreeSingleNode()
+    alph_single = rtree_single_node.RadixTree_SN_TD()
     alph_single.insert(t_alph)
 
-    random_single = rtree_single_node.RadixTreeSingleNode()
+    random_single = rtree_single_node.RadixTree_SN_TD()
     random_single.insert(t_random)
 
-    random_local = rtree_single_node.RadixTreeSingleNode()
+    random_local = rtree_single_node.RadixTree_SN_TD()
     random_local.insert(t_random_local)
 
     print(f"{dataset} SINGLE-NODE (Total Nodes | Total Elements ) -------------------------------")

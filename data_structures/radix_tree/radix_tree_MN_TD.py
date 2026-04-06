@@ -1,48 +1,30 @@
-
-class Node():
-    __slots__ = ['prefix', 'count', 'is_terminal', 'node_type']
-    def __init__(self, prefix: list, count: int, is_terminal: bool, node_type: int):
-        self.prefix = prefix
-        self.count = count
-        self.is_terminal = is_terminal
-        self.node_type = node_type # {0,1,2} if isinstance might be slow
+from radix_tree_utils import Node, RadixTree
 
 class LeafNode(Node):
-    __slots__ = []
+    __slots__ = ['node_type']
     def __init__(self, prefix: list, count: int):
-        super().__init__(prefix, count, True, 0)
+        super().__init__(prefix, count, True)
+        self.node_type = 0
 
 class SingleChildNode(Node):
-    __slots__ = ['child']
+    __slots__ = ['child', 'node_type']
     def __init__(self, prefix: list, count: int, is_terminal: bool, child: Node = None):
-        super().__init__(prefix, count, is_terminal, 1)
+        super().__init__(prefix, count, is_terminal)
         self.child = child
+        self.node_type = 1
 
 class MultiChildNode(Node):
-    __slots__ = ['children']
+    __slots__ = ['children', 'node_type']
     def __init__(self, prefix: list, count: int, is_terminal: bool, children: dict = None):
-        super().__init__(prefix, count, is_terminal, 2)
+        super().__init__(prefix, count, is_terminal)
         self.children = children if children else {}
+        self.node_type = 2
 
-## RADIX TREE ##############################################################
+class RadixTree_MN_TD(RadixTree):
 
-class RadixTreeMultiNode():
-    def __init__(self):
-        self.root = None
-    
-    def _get_common_prefix_length(self, prefix1, prefix2):
-        smaller_prefix_len = min(len(prefix1), len(prefix2))
-        for i in range(smaller_prefix_len):
-            if prefix1[i] != prefix2[i]:
-                return i
-        # The last possible value for i was smaller_prefix_len - 1
-        return smaller_prefix_len
-    
     def _replace_child(self, parent, new_node):
         if parent is None:
             self.root = new_node
-        elif parent.node_type == 1:
-            parent.child = new_node
         else:
             key = new_node.prefix[0] if new_node.prefix else None
             parent.children[key] = new_node

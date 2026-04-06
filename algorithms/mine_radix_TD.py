@@ -1,5 +1,5 @@
 import time
-import data_structures.radix_tree.radix_tree_multi_node as rtree_multi_node
+from data_structures import radix_tree_SN_TD as rtree_multi_node
 import data_structures.radix_tree.radix_tree_single_node as rtree_single_node
 from general_utils import radix_tree_count_sort
 
