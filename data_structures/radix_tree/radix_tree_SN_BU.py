@@ -54,7 +54,7 @@ class RadixTree_SN_BU(RadixTree):
                     # len(key) or len(n.prefix)
                     if i == len(key):
                         # len(key) < len(n.prefix) AND key = n.prefix[:i]
-                        m = SN_RadixNode(n.prefix[:i], n.count + 1, True, {n.prefix[i]:n}, n_parent)
+                        m = SN_RadixNode(n.prefix[:i], n.count + 1, True, n_parent, {n.prefix[i]:n})
                         n.parent = m
                         n.prefix = n.prefix[i:]
                         self._replace_child(n_parent, m)
