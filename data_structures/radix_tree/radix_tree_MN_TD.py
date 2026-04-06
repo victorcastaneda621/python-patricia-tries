@@ -1,4 +1,4 @@
-from radix_tree_utils import Node, RadixTree
+from data_structures.radix_tree.radix_tree_utils import Node, RadixTree
 
 class LeafNode(Node):
     __slots__ = ['node_type']

@@ -8,8 +8,10 @@ from algorithms.mine_radix import mine_radix
 ALGORITHMS = {
     "patricia": mine_patricia,
     "list": mine_lists,
-    "radix-multi-node": lambda t, m: mine_radix(t, m, single_node=False),
-    "radix-single-node": lambda t, m: mine_radix(t, m, single_node=True)
+    "radix-SN-BU": lambda t, m: mine_radix(t, m, single_node=True, top_down=False),
+    "radix-SN-TD": lambda t, m: mine_radix(t, m, single_node=True, top_down=True),
+    "radix-MN-BU": lambda t, m: mine_radix(t, m, single_node=False, top_down=False),
+    "radix-MN-TD": lambda t, m: mine_radix(t, m, single_node=False, top_down=True)
 }
 
 DATASETS = [

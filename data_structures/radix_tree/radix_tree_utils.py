@@ -50,7 +50,7 @@ class SingleChildNodeP(NodeP):
         self.child = child
         self.node_type = 1
 
-class MultiChildNodeP(SN_RadixNodeP):
+class MultiChildNodeP(NodeP):
     __slots__ = ['node_type']
     def __init__(self, prefix: list, count: int, is_terminal: bool, children: dict = None):
         super().__init__(prefix, count, is_terminal, children)

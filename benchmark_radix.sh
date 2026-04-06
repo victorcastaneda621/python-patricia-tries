@@ -12,52 +12,52 @@ mkdir -p logs
 
 case $SLURM_ARRAY_TASK_ID in
     0)
-        ALG="radix-single-node"
+        ALG="radix-SN-BU"
         DATASET="mushroom"
         MINSUP=640
         ;;
     1)
-        ALG="radix-single-node"
+        ALG="radix-SN-BU"
         DATASET="connect4"
         MINSUP=40535
         ;;
     2)
-        ALG="radix-single-node"
+        ALG="radix-SN-BU"
         DATASET="pumsb"
         MINSUP=29400
         ;;
     3)
-        ALG="radix-single-node"
+        ALG="radix-SN-BU"
         DATASET="pumsb_star"
         MINSUP=9810
         ;;
     4)
-        ALG="radix-single-node"
+        ALG="radix-SN-BU"
         DATASET="artificial_1"
         MINSUP=200
         ;;
     5)
-        ALG="radix-multi-node"
+        ALG="radix-SN-TD"
         DATASET="mushroom"
         MINSUP=640
         ;;
     6)
-        ALG="radix-multi-node"
+        ALG="radix-SN-TD"
         DATASET="connect4"
         MINSUP=40535
         ;;
     7)
-        ALG="radix-multi-node"
+        ALG="radix-SN-TD"
         DATASET="pumsb"
         MINSUP=29400
         ;;
     8)
-        ALG="radix-multi-node"
+        ALG="radix-SN-TD"
         DATASET="pumsb_star"
         MINSUP=9810
         ;;
     9)
-        ALG="radix-multi-node"
+        ALG="radix-SN-TD"
         DATASET="artificial_1"
         MINSUP=200
         ;;

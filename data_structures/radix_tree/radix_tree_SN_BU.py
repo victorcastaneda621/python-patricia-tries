@@ -1,4 +1,5 @@
 from data_structures.radix_tree.radix_tree_utils import NodeP, RadixTree
+from collections import defaultdict
 
 class SN_RadixNode(NodeP):
     __slots__ = ['children']
@@ -6,7 +7,7 @@ class SN_RadixNode(NodeP):
         super().__init__(prefix, count, is_terminal, parent)
         self.children = children if children else {}
 
-class RadixTree_SN_TD(RadixTree): 
+class RadixTree_SN_BU(RadixTree): 
 
     def _replace_child(self, parent, new_node):
         if parent is None:
@@ -14,6 +15,19 @@ class RadixTree_SN_TD(RadixTree):
         else:
             key = new_node.prefix[0] if new_node.prefix else None
             parent.children[key] = new_node
+
+    def build_node_list(self):
+        self.node_list = defaultdict(list)
+        self._build_node_list(self.root)
+
+    def _build_node_list(self, node):
+        if not node: 
+            return
+        for item in node.prefix:
+            self.node_list[item].append(node)
+            
+        for child in node.children.values():
+            self._build_node_list(child)
 
     def insert(self, keys: list):
         # Turn sets into lists (giving the items an order)
@@ -67,6 +81,7 @@ class RadixTree_SN_TD(RadixTree):
                         self._replace_child(n_parent, m)
                         n.prefix = n.prefix[i:]
                         finished_adding_current_key = True
+        self.build_node_list()
 
     def _compare_to(self, key1, key2, order):
         if key1 == key2: return 0
@@ -74,25 +89,31 @@ class RadixTree_SN_TD(RadixTree):
         # Assuming key2 will never be "None" based on the mining loop
         return -1 if order[key1] < order[key2] else 1
 
-    def get_support_of_itemset(self, itemset: list):
+    def get_support_of_itemset(self, itemset: list, _order):
         if not itemset:
             return self.root.count if self.root else 0
+        
+        target_item = itemset[0]
+        if target_item not in self.node_list:
+            return 0
+        
+        remaining_items = set(itemset) 
+        total_support = 0
+        
+        for node in self.node_list[target_item]:
+            current = node
+            
+            temp_remaining = remaining_items.copy()
+            while current is not None and temp_remaining:
+                for p_item in current.prefix:
+                    if p_item in temp_remaining:
+                        temp_remaining.remove(p_item)
+                current = current.parent
 
-        itemset_tlist = self.tlist[itemset[0]].copy()
-
-        for item in itemset[1:]:
-            itemset_tlist = itemset_tlist & self.tlist[item]
-
-            if not itemset_tlist:
-                return 0
-
-        return len(itemset_tlist)
-
-    
-    def get_support_t_list(item, itemset, tlist):
-        #basically you get tlist[item] = {node1, node3}. You follow those pointers and traverse upwards
-        # (we need node.parent). If you find everything else in itemsets, you add nodeX.count.
-        pass
+            if not temp_remaining:
+                total_support += node.count
+                
+        return total_support
         
     def _print(self, n, i, item):
         indentation = "       " * i

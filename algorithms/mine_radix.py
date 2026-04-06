@@ -1,15 +1,16 @@
 import time
-from data_structures import radix_tree_SN_TD as rtree_multi_node
-import data_structures.radix_tree.radix_tree_single_node as rtree_single_node
-from general_utils import radix_tree_count_sort
+from data_structures import radix_tree_SN_TD
+from data_structures import radix_tree_SN_BU
+from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 
-def mine_radix(transactions, min_supp, single_node: bool):
+def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     before_trie_build = time.perf_counter()
 
     if single_node:
-        tree = rtree_single_node.RadixTreeSingleNode()
-    else:
-        tree = rtree_multi_node.RadixTreeMultiNode()
+        if top_down:
+            tree = radix_tree_SN_TD.RadixTree_SN_TD()
+        else:
+            tree = radix_tree_SN_BU.RadixTree_SN_BU()
 
     # Inserts the transactions and returns the counts of items
     transactions, count, order = radix_tree_count_sort(transactions)
@@ -39,9 +40,8 @@ def mine_radix(transactions, min_supp, single_node: bool):
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
     after_mining = time.perf_counter()
-    node_count, max_depth = tree.count_nodes_and_max_depth()
     return {"build_time": after_trie_build - before_trie_build,
             "mining_time": after_mining - after_trie_build,
             "itemsets": returned,
-            "node_count": node_count,
-            "max_depth": max_depth}
+            "node_count": "-",
+            "max_depth": "-"}
