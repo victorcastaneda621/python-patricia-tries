@@ -97,20 +97,24 @@ class RadixTree_SN_BU(RadixTree):
         if target_item not in self.node_list:
             return 0
         
-        remaining_items = set(itemset) 
+        itemset_set = set(itemset)
+        target_len = len(itemset_set)
         total_support = 0
         
         for node in self.node_list[target_item]:
             current = node
+            found_count = 0
             
-            temp_remaining = remaining_items.copy()
-            while current is not None and temp_remaining:
+            while current is not None:
                 for p_item in current.prefix:
-                    if p_item in temp_remaining:
-                        temp_remaining.remove(p_item)
+                    if p_item in itemset_set:
+                        found_count += 1
+                
+                if found_count == target_len:
+                    break
                 current = current.parent
 
-            if not temp_remaining:
+            if found_count == target_len:
                 total_support += node.count
                 
         return total_support
