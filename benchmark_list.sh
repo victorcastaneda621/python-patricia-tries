@@ -2,7 +2,7 @@
 #SBATCH -J patricia_mine          
 #SBATCH -o logs/bench_%A_%a.out   
 #SBATCH -e logs/bench_%A_%a.err   
-#SBATCH -t 24:00:00               
+#SBATCH -t 48:00:00               
 #SBATCH --mem-per-cpu=4096        
 #SBATCH -n 1                      
 #SBATCH -c 1
