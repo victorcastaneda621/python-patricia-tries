@@ -14,14 +14,14 @@ ALG="list"
 
 case $SLURM_ARRAY_TASK_ID in
     0)
-        ALG="radix-SN-TD"
+        ALG="radix-MN-TD"
         DATASET="artificial_1"
         MINSUP=200
         ;;
     1)
-        ALG="radix-SN-TD"
+        ALG="radix-MN-BU"
         DATASET="artificial_1"
-        MINSUP=400
+        MINSUP=200
         ;;
 esac
 # ------------------------------------
