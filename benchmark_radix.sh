@@ -12,35 +12,56 @@ mkdir -p logs
 
 case $SLURM_ARRAY_TASK_ID in
     0)
-        ALG="radix-SN-BU"
+        ALG="radix-MN-TD"
         DATASET="mushroom"
         MINSUP=640
         ;;
     1)
-        ALG="radix-SN-BU"
+        ALG="radix-MN-TD"
         DATASET="connect4"
         MINSUP=40535
         ;;
     2)
-        ALG="radix-SN-BU"
+        ALG="radix-MN-TD"
         DATASET="pumsb"
         MINSUP=35000
         ;;
     3)
-        ALG="radix-SN-BU"
+        ALG="radix-MN-TD"
         DATASET="pumsb_star"
         MINSUP=14000
         ;;
     4)
-        ALG="radix-SN-BU"
+        ALG="radix-MN-TD"
         DATASET="artificial_1"
         MINSUP=200
         ;;
     5)
-        ALG="radix-SN-TD"
+        ALG="radix-MN-BU"
+        DATASET="mushroom"
+        MINSUP=640
+        ;;
+    6)
+        ALG="radix-MN-BU"
+        DATASET="connect4"
+        MINSUP=40535
+        ;;
+    7)
+        ALG="radix-MN-BU"
+        DATASET="pumsb"
+        MINSUP=35000
+        ;;
+    8)
+        ALG="radix-MN-BU"
+        DATASET="pumsb_star"
+        MINSUP=14000
+        ;;
+    9)
+        ALG="radix-MN-BU"
         DATASET="artificial_1"
         MINSUP=200
         ;;
+    
 esac
 # ------------------------------------
 

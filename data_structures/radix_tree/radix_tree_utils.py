@@ -36,22 +36,3 @@ class NodeP(Node):
     def __init__(self, prefix: list, count: int, is_terminal: bool, parent: Node):
         super().__init__(prefix, count, is_terminal)
         self.parent = parent
-
-class LeafNodeP(NodeP):
-    __slots__ = ['node_type']
-    def __init__(self, prefix: list, count: int):
-        super().__init__(prefix, count, True)
-        self.node_type = 0
-
-class SingleChildNodeP(NodeP):
-    __slots__ = ['child', 'node_type']
-    def __init__(self, prefix: list, count: int, is_terminal: bool, child: Node = None):
-        super().__init__(prefix, count, is_terminal)
-        self.child = child
-        self.node_type = 1
-
-class MultiChildNodeP(NodeP):
-    __slots__ = ['node_type']
-    def __init__(self, prefix: list, count: int, is_terminal: bool, children: dict = None):
-        super().__init__(prefix, count, is_terminal, children)
-        self.node_type = 2

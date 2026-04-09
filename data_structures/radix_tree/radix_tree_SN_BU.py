@@ -16,18 +16,18 @@ class RadixTree_SN_BU(RadixTree):
             key = new_node.prefix[0] if new_node.prefix else None
             parent.children[key] = new_node
 
-    def build_node_list(self):
-        self.node_list = defaultdict(list)
-        self._build_node_list(self.root)
+    def build_node_lists(self):
+        self.node_lists = defaultdict(list)
+        self._build_node_lists(self.root)
 
-    def _build_node_list(self, node):
+    def _build_node_lists(self, node):
         if not node: 
             return
         for item in node.prefix:
-            self.node_list[item].append(node)
+            self.node_lists[item].append(node)
             
         for child in node.children.values():
-            self._build_node_list(child)
+            self._build_node_lists(child)
 
     def insert(self, keys: list):
         # Turn sets into lists (giving the items an order)
@@ -81,7 +81,7 @@ class RadixTree_SN_BU(RadixTree):
                         self._replace_child(n_parent, m)
                         n.prefix = n.prefix[i:]
                         finished_adding_current_key = True
-        self.build_node_list()
+        self.build_node_lists()
 
     def _compare_to(self, key1, key2, order):
         if key1 == key2: return 0
@@ -94,14 +94,14 @@ class RadixTree_SN_BU(RadixTree):
             return self.root.count if self.root else 0
         
         target_item = itemset[0]
-        if target_item not in self.node_list:
+        if target_item not in self.node_lists:
             return 0
         
         itemset_set = set(itemset)
         target_len = len(itemset_set)
         total_support = 0
         
-        for node in self.node_list[target_item]:
+        for node in self.node_lists[target_item]:
             current = node
             found_count = 0
             

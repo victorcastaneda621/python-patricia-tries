@@ -1,6 +1,5 @@
 import time
-from data_structures import radix_tree_SN_TD
-from data_structures import radix_tree_SN_BU
+from data_structures import radix_tree_SN_TD, radix_tree_SN_BU, radix_tree_MN_TD, radix_tree_MN_BU
 from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
@@ -11,6 +10,11 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
             tree = radix_tree_SN_TD.RadixTree_SN_TD()
         else:
             tree = radix_tree_SN_BU.RadixTree_SN_BU()
+    else:
+        if top_down:
+            tree = radix_tree_MN_TD.RadixTree_MN_TD()
+        else:
+            tree = radix_tree_MN_BU.RadixTree_MN_BU()
 
     # Inserts the transactions and returns the counts of items
     transactions, count, order = radix_tree_count_sort(transactions)
