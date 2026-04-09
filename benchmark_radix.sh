@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=4096        
 #SBATCH -n 1                      
 #SBATCH -c 1
-#SBATCH --array=0-9
+#SBATCH --array=0-19
 
 mkdir -p logs
 
