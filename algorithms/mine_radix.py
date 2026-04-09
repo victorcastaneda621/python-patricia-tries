@@ -25,7 +25,7 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
 
     tree_size_bytes = asizeof.asizeof(tree)
     tree_size_mb = tree_size_bytes / (1024 * 1024)
-    print("tree_size_mb": tree_size_mb)
+    print("tree_size_mb:" + str(tree_size_mb))
 
     IL = list(order.keys())
     h,l = 0,0
