@@ -23,13 +23,6 @@ class MultiChildNode(NodeP):
 
 class RadixTree_MN_BU(RadixTree): 
 
-    def _replace_child(self, parent, new_node):
-        if parent is None:
-            self.root = new_node
-        else:
-            key = new_node.prefix[0] if new_node.prefix else None
-            parent.children[key] = new_node
-
     def build_node_lists(self):
         self.node_lists = defaultdict(list)
         self._build_node_lists(self.root)
@@ -54,7 +47,13 @@ class RadixTree_MN_BU(RadixTree):
             self.root = new_node
         else:
             key = new_node.prefix[0] if new_node.prefix else None
-            parent.children[key] = new_node
+            match parent.node_type:
+                case 0:
+                    pass
+                case 1:
+                    parent.child = new_node
+                case 2: 
+                    parent.children[key] = new_node
             
     def insert(self, keys: list):
         # Turn sets into lists (giving the items an order)
