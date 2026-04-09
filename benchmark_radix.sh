@@ -61,6 +61,56 @@ case $SLURM_ARRAY_TASK_ID in
         DATASET="artificial_1"
         MINSUP=200
         ;;
+    10)
+        ALG="radix-SN-TD"
+        DATASET="mushroom"
+        MINSUP=640
+        ;;
+    11)
+        ALG="radix-SN-TD"
+        DATASET="connect4"
+        MINSUP=40535
+        ;;
+    12)
+        ALG="radix-SN-TD"
+        DATASET="pumsb"
+        MINSUP=35000
+        ;;
+    13)
+        ALG="radix-SN-TD"
+        DATASET="pumsb_star"
+        MINSUP=14000
+        ;;
+    14)
+        ALG="radix-SN-TD"
+        DATASET="artificial_1"
+        MINSUP=200
+        ;;
+    15)
+        ALG="radix-SN-BU"
+        DATASET="mushroom"
+        MINSUP=640
+        ;;
+    16)
+        ALG="radix-SN-BU"
+        DATASET="connect4"
+        MINSUP=40535
+        ;;
+    17)
+        ALG="radix-SN-BU"
+        DATASET="pumsb"
+        MINSUP=35000
+        ;;
+    18)
+        ALG="radix-SN-BU"
+        DATASET="pumsb_star"
+        MINSUP=14000
+        ;;
+    19)
+        ALG="radix-SN-BU"
+        DATASET="artificial_1"
+        MINSUP=200
+        ;;
     
 esac
 # ------------------------------------

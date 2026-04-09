@@ -1,9 +1,12 @@
 import time
 from data_structures import radix_tree_SN_TD, radix_tree_SN_BU, radix_tree_MN_TD, radix_tree_MN_BU
 from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
+import tracemalloc
+from pympler import asizeof
 
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     before_trie_build = time.perf_counter()
+    tracemalloc.start()
 
     if single_node:
         if top_down:
@@ -19,6 +22,10 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     # Inserts the transactions and returns the counts of items
     transactions, count, order = radix_tree_count_sort(transactions)
     tree.insert(transactions)
+
+    tree_size_bytes = asizeof.asizeof(tree)
+    tree_size_mb = tree_size_bytes / (1024 * 1024)
+    print("tree_size_mb": tree_size_mb)
 
     IL = list(order.keys())
     h,l = 0,0
@@ -44,8 +51,12 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
     after_mining = time.perf_counter()
+    current, peak = tracemalloc.get_traced_memory()
+    peak_memory_mb = peak / (1024 * 1024)
+    tracemalloc.stop()
+    print("peak_memory_mb: " + str(peak_memory_mb))
     return {"build_time": after_trie_build - before_trie_build,
             "mining_time": after_mining - after_trie_build,
             "itemsets": returned,
-            "node_count": "-",
-            "max_depth": "-"}
+            "peak_memory_mb": peak_memory_mb,
+            "tree_size_mb":tree_size_mb}
