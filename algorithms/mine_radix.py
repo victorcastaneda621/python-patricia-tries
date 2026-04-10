@@ -5,7 +5,7 @@ import tracemalloc
 import sys
 import os
 # Esto añade la carpeta de librerías del usuario al path de búsqueda
-sys.path.append(os.path.expanduser("~/.local/lib/python3.x/site-packages"))
+sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
 
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
