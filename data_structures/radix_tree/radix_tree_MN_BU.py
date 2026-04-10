@@ -91,7 +91,7 @@ class RadixTree_MN_BU(RadixTree):
                         if n.node_type == 0:
                             m = LeafNode(key[i:], 1)
                             new_n = SingleChildNode(n.prefix, n.count, True, n_parent, m)
-                            n.parent = new_n
+                            m.parent = new_n
                             self._replace_child(n_parent, new_n)
 
                             finished_adding_current_key = True
