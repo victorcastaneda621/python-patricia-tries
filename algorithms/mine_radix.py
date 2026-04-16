@@ -5,8 +5,8 @@ import tracemalloc
 import sys
 import os
 # Esto añade la carpeta de librerías del usuario al path de búsqueda
-sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
-from pympler import asizeof
+#sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
+#from pympler import asizeof
 
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     before_trie_build = time.perf_counter()
@@ -27,9 +27,9 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     transactions, count, order = radix_tree_count_sort(transactions)
     tree.insert(transactions)
 
-    tree_size_bytes = asizeof.asizeof(tree)
-    tree_size_mb = tree_size_bytes / (1024 * 1024)
-    print("tree_size_mb:" + str(tree_size_mb))
+#    tree_size_bytes = asizeof.asizeof(tree)
+#    tree_size_mb = tree_size_bytes / (1024 * 1024)
+#    print("tree_size_mb:" + str(tree_size_mb))
 
     IL = list(order.keys())
     h,l = 0,0
@@ -55,14 +55,14 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
     after_mining = time.perf_counter()
-    current, peak = tracemalloc.get_traced_memory()
-    peak_memory_mb = peak / (1024 * 1024)
+    #current, peak = tracemalloc.get_traced_memory()
+    #peak_memory_mb = peak / (1024 * 1024)
     tracemalloc.stop()
-    print("peak_memory_mb: " + str(peak_memory_mb))
+    #print("peak_memory_mb: " + str(peak_memory_mb))
     print("itemsets:", str(len(returned)))
     return {"build_time": after_trie_build - before_trie_build,
             "mining_time": after_mining - after_trie_build,
             "itemsets": returned,
-            "peak_memory_mb": peak_memory_mb,
-            "tree_size_mb":tree_size_mb
+            "peak_memory_mb": -,
+            "tree_size_mb":-
             }
