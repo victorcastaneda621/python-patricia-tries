@@ -1,16 +1,16 @@
 import time
 from data_structures import radix_tree_SN_TD, radix_tree_SN_BU, radix_tree_MN_TD, radix_tree_MN_BU
 from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
-import tracemalloc
-import sys
-import os
+#import tracemalloc
+#import sys
+#import os
 # Esto añade la carpeta de librerías del usuario al path de búsqueda
 #sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 #from pympler import asizeof
 
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     before_trie_build = time.perf_counter()
-    tracemalloc.start()
+    #tracemalloc.start()
 
     if single_node:
         if top_down:
@@ -57,7 +57,7 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     after_mining = time.perf_counter()
     #current, peak = tracemalloc.get_traced_memory()
     #peak_memory_mb = peak / (1024 * 1024)
-    tracemalloc.stop()
+    #tracemalloc.stop()
     #print("peak_memory_mb: " + str(peak_memory_mb))
     print("itemsets:", str(len(returned)))
     return {"build_time": after_trie_build - before_trie_build,
