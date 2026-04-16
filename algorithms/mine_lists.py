@@ -10,7 +10,6 @@ def select(D, X):
         return out
 
 def mine_lists(transactions, min_supp):
-    before_build = time.perf_counter()
 
     Dprime = transactions
 
@@ -20,8 +19,6 @@ def mine_lists(transactions, min_supp):
             count[item] += 1
     IL = [item for item, _ in count.most_common()]
     X,h,l = [None for _ in IL],0,0
-
-    after_build = time.perf_counter()
 
     returned = []
     while l<len(IL):
@@ -43,10 +40,5 @@ def mine_lists(transactions, min_supp):
                     count[IL[i]] = sum([1 for elem in DX if IL[i] in elem])
                 l=0
 
-    after_mining = time.perf_counter()
-    return {"build_time": after_build - before_build,
-            "mining_time": after_mining - after_build,
-            "itemsets": returned,
-            "node_count": "-",
-            "max_depth": "-"}
+    return returned
 

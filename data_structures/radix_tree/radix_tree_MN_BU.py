@@ -137,7 +137,6 @@ class RadixTree_MN_BU(RadixTree):
         return -1 if order[key1] < order[key2] else 1
 
     def get_support_of_itemset(self, itemset: list, _order):
-        assert itemset == sorted(itemset, key=lambda x: _order[x], reverse=True)
         if not itemset:
             return self.root.count if self.root else 0
         

@@ -13,13 +13,14 @@ def first_difference(seq1, seq2):
         if xor == 0:
             return None # There will be no differences
         
-        i = 0
+        """i = 0
         while xor > 0:
             if xor & 1 == 1: # Then XOR returned 1 for the first time at i 
                 return i
             xor = xor >> 1 # Shift to the right (0b1011 >> 1 = 0b(0)101)
             i += 1
-        return None
+        return None"""
+        return (xor & -xor).bit_length() - 1
 
 ## NODE TYPES #################################################################
 
@@ -38,11 +39,11 @@ class InternalNode(Node):
         self.right_child = right_child
         
 class LeafNode(Node):
-    __slots__ = ['key', 'value']
-    def __init__(self, key: int, value):
-        super().__init__(value, key)
+    __slots__ = ['key', 'count']
+    def __init__(self, key: int, count):
+        super().__init__(count, key)
         self.key = key
-        self.value = value # Amount of transactions equal to this one
+        self.count = count # Amount of transactions equal to this one
 
 ## PATRICIA TRIE ##############################################################
 class PatriciaTrie():
@@ -70,18 +71,18 @@ class PatriciaTrie():
                 n = n.right_child
         return n # If the key was not in the trie, we still return some node
 
-    def get_value_from_bits(self, key: int):
+    def get_count_from_bits(self, key: int):
         n = self._get_item_node(key)
         # If the key was in the trie, we found the corresponding node; 
         # otherwise it was not
         if n.key == key:
-            return n.value
+            return n.count
         else:
             return None
         
-    def get_value_from_transaction(self, transaction: set):
+    def get_count_from_transaction(self, transaction: set):
         bit_seq = tbs.transaction_to_bit_sequence(transaction, self.item_to_index)
-        return self.get_value_from_bits(bit_seq)
+        return self.get_count_from_bits(bit_seq)
     
     def insert(self, keys: list):
         # If we dont have an order (first insertion), we must obtain it
@@ -146,7 +147,7 @@ class PatriciaTrie():
                     else:
                         current = current.right_child
 
-                n.value += 1
+                n.count += 1
                 n.subtrie_leaf_count += 1
         return support
         
@@ -154,11 +155,11 @@ class PatriciaTrie():
         indentation = "    " * i
         if isinstance(n, LeafNode):
             print(indentation + pos + "├── (" + str(self.seq_to_transaction(n.key)) + " --> key: " + 
-                  str(n.key) + ", support: " + str(n.value) + ")")
+                  str(n.key) + ", support: " + str(n.count) + ")")
         else:
             print(indentation + pos + "├──" + "(skip: " + str(n.skip) + ")")
-            self._print(n.get_left_child(), i+1, "L")
-            self._print(n.get_right_child(), i+1, "R")
+            self._print(n.left_child, i+1, "L")
+            self._print(n.right_child, i+1, "R")
         
     def print(self):
         self._print(self.root, 0, "·")
@@ -182,7 +183,7 @@ class PatriciaTrie():
             # as the bit_seq
             if isinstance(node, LeafNode): 
                 # We arrived at a key that contains 1s in every required position
-                return node.value
+                return node.count
             else: 
                 # we continue exploring children
                 if not is_bit_i_of_seq_zero(bit_seq, node.skip):
@@ -211,11 +212,14 @@ class PatriciaTrie():
 
 ## PatriciaTrie ############################################################
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}] 
+# t = PatriciaTrie()
+# t.insert(example)
+# t.print()
 # has supports [Atenas:1, Roma:2, Oslo:3], so it becomes [0b111, 0b011, 0b001]. 
 # The trie is:
-# Sequence values:  [7, 3, 1]
+# Sequence counts:  [7, 3, 1]
 #·├──(skip: 1)
-#    L├──1 (value: t3)
+#    L├──1 (key: t3)
 #    R├──(skip: 2)
-#        L├──3 (value: t2)
-#        R├──7 (value: t1)
+#        L├──3 (key: t2)
+#        R├──7 (key: t1)

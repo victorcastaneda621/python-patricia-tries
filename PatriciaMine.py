@@ -64,10 +64,6 @@ def run_experiment(args):
         "algorithm": args.alg,
         "dataset": args.data,
         "minsup": args.minsup,
-        "build_time": results["build_time"],
-        "mining_time": results["mining_time"],
-        "node_count": results["node_count"],
-        "max_depth": results["max_depth"],
         "number_itemsets": len(results["itemsets"])
     }
 
@@ -78,12 +74,6 @@ def run_experiment(args):
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     if not args.benchmark:
         write_results(results["itemsets"], args) # Write mined itemsets to .txt
-    print(
-        "Build time: " + str(results["build_time"]) + " s" +
-        "\nMining time: " + str(results["mining_time"]) + " s" +
-        "\nTotal time: " + str(results["build_time"] + results["mining_time"]) + " s" +
-        "\nNumber of frequent itemsets: " + str(len(results["itemsets"]))
-        )
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Frequent Itemset Mining")
