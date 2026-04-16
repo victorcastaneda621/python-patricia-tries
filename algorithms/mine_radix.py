@@ -63,6 +63,6 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     return {"build_time": after_trie_build - before_trie_build,
             "mining_time": after_mining - after_trie_build,
             "itemsets": returned,
-            "peak_memory_mb": -,
-            "tree_size_mb":-
+            "peak_memory_mb": "-",
+            "tree_size_mb":"-"
             }
