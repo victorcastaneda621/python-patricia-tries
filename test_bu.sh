@@ -12,12 +12,12 @@ mkdir -p logs
 
 case $SLURM_ARRAY_TASK_ID in
     0)
-        ALG="radix-MN-BU"
+        ALG="radix-MN-TD"
         DATASET="artificial_1"
         MINSUP=200
         ;;
     1)
-        ALG="radix-SN-BU"
+        ALG="radix-SN-TD"
         DATASET="artificial_1"
         MINSUP=200
         ;;
