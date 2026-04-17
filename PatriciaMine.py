@@ -61,14 +61,14 @@ def run_experiment(args):
     results = algorithm(transactions, args.minsup) # Call the chosen miner
 
     metrics = {
-        "algorithm": args.alg,
-        "dataset": args.data,
-        "minsup": args.minsup,
-        "build_time": results["build_time"],
-        "mining_time": results["mining_time"],
-        "node_count": results["node_count"],
-        "max_depth": results["max_depth"],
-        "number_itemsets": len(results["itemsets"])
+        "algorithm": getattr(args, "alg", "-"),
+        "dataset": getattr(args, "data", "-"),
+        "minsup": getattr(args, "minsup", "-"),
+        "build_time": results.get("build_time", "-"),
+        "mining_time": results.get("mining_time", "-"),
+        "node_count": results.get("node_count", "-"),
+        "max_depth": results.get("max_depth", "-"),
+        "number_itemsets": len(results["itemsets"]) if "itemsets" in results else "-"
     }
 
     # Make sure the files directory exists
