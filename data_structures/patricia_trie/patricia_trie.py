@@ -157,8 +157,8 @@ class PatriciaTrie():
                   str(n.key) + ", support: " + str(n.value) + ")")
         else:
             print(indentation + pos + "├──" + "(skip: " + str(n.skip) + ")")
-            self._print(n.get_left_child(), i+1, "L")
-            self._print(n.get_right_child(), i+1, "R")
+            self._print(n.left_child, i+1, "L")
+            self._print(n.right_child, i+1, "R")
         
     def print(self):
         self._print(self.root, 0, "·")
@@ -210,7 +210,7 @@ class PatriciaTrie():
             return (1 + left_count[0] + right_count[0], 1 + max(left_count[1], right_count[1]))
 
 ## PatriciaTrie ############################################################
-# example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}] 
+# example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 # has supports [Atenas:1, Roma:2, Oslo:3], so it becomes [0b111, 0b011, 0b001]. 
 # The trie is:
 # Sequence values:  [7, 3, 1]

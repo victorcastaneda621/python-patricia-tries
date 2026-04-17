@@ -4,7 +4,7 @@ from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 #import tracemalloc
 #import sys
 #import os
-# Esto añade la carpeta de librerías del usuario al path de búsqueda
+
 #sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 #from pympler import asizeof
 
