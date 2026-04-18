@@ -1,6 +1,7 @@
 from collections import Counter
 import time
 from general_utils import prune_dataset
+#import tracemalloc
 
 def select(D, X):
         out = []
@@ -12,6 +13,7 @@ def select(D, X):
 
 def mine_lists(transactions, min_supp):
     before_build = time.perf_counter()
+    #tracemalloc.start()
 
     transactions = prune_dataset(transactions, min_supp)
 
@@ -35,7 +37,6 @@ def mine_lists(transactions, min_supp):
             else:
                 X[h] = IL[l]
                 h += 1
-                #print("Generate","".join(X[:h]),X)
                 returned.append(X[:h])
 
                 if l:
@@ -45,9 +46,16 @@ def mine_lists(transactions, min_supp):
                 l=0
 
     after_mining = time.perf_counter()
+    #current, peak = tracemalloc.get_traced_memory()
+    #peak_memory_mb = peak / (1024 * 1024)
+    #tracemalloc.stop()
+    #print("peak_memory_mb: " + str(peak_memory_mb))
     return {"build_time": after_build - before_build,
             "mining_time": after_mining - after_build,
             "itemsets": returned,
             "node_count": "-",
-            "max_depth": "-"}
+            "max_depth": "-",
+            "peak_memory_mb": "-",
+            "tree_size_mb":"-"
+            }
 

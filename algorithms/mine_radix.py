@@ -26,7 +26,6 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
         else:
             tree = radix_tree_MN_BU.RadixTree_MN_BU()
 
-    # Inserts the transactions and returns the counts of items
     transactions, count, order = radix_tree_count_sort(transactions)
     tree.insert(transactions)
 
@@ -51,7 +50,6 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
             else:
                 X[h] = IL[l]
                 h += 1
-                #print("Generate","".join(X[:h]),X)
                 returned.append(X[:h])
 
                 for i in range(l-1,-1,-1):
@@ -63,9 +61,12 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     #tracemalloc.stop()
     #print("peak_memory_mb: " + str(peak_memory_mb))
     print("itemsets:", str(len(returned)))
+    node_count, max_depth = tree.count_nodes_and_max_depth()
     return {"build_time": after_trie_build - before_trie_build,
             "mining_time": after_mining - after_trie_build,
             "itemsets": returned,
+            "node_count": node_count,
+            "max_depth": max_depth,
             "peak_memory_mb": "-",
             "tree_size_mb":"-"
             }
