@@ -14,12 +14,27 @@ ALG="list"
 
 case $SLURM_ARRAY_TASK_ID in
     0)
-        ALG="radix-MN-TD"
-        DATASET="artificial_1"
-        MINSUP=200
+        ALG="list"
+        DATASET="mushroom"
+        MINSUP=640
         ;;
     1)
-        ALG="radix-MN-BU"
+        ALG="list"
+        DATASET="connect4"
+        MINSUP=40535
+        ;;
+    2)
+        ALG="list"
+        DATASET="pumsb"
+        MINSUP=35000
+        ;;
+    3)
+        ALG="list"
+        DATASET="pumsb_star"
+        MINSUP=14000
+        ;;
+    4)
+        ALG="list"
         DATASET="artificial_1"
         MINSUP=200
         ;;
