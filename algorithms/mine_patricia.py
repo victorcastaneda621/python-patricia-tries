@@ -1,8 +1,11 @@
 import time
 import data_structures.patricia_trie.patricia_trie as pt
+from general_utils import prune_dataset
 
 def mine_patricia(transactions, min_supp):
     before_trie_build = time.perf_counter()
+
+    transactions = prune_dataset(transactions, min_supp)
 
     trie = pt.PatriciaTrie()
 
