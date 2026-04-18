@@ -1,5 +1,6 @@
 import os, csv
 from collections import Counter
+from itertools import chain
 
 def row_to_transaction(row):
     """Turns a row of data from a table into a transaction.
@@ -60,3 +61,8 @@ def write_results(itemsets: list, args):
     with open(filename, "w") as f:
         for itemset in itemsets:
             f.write(",".join(itemset) + "\n")
+
+def prune_dataset(transaction_list, min_sup):
+    support = Counter(chain.from_iterable(transaction_list))
+    support_filtered = {item for item, count in support.items() if count >= min_sup}
+    return [support_filtered.intersection(t) for t in transaction_list]

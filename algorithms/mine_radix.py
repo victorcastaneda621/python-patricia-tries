@@ -1,6 +1,7 @@
 import time
 from data_structures import radix_tree_SN_TD, radix_tree_SN_BU, radix_tree_MN_TD, radix_tree_MN_BU
 from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
+from general_utils import prune_dataset
 #import tracemalloc
 #import sys
 #import os
@@ -11,6 +12,8 @@ from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
     before_trie_build = time.perf_counter()
     #tracemalloc.start()
+
+    transactions = prune_dataset(transactions, min_supp)
 
     if single_node:
         if top_down:
