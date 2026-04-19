@@ -19,7 +19,7 @@ def mine_patricia(transactions, min_supp):
 
     count = trie.insert(transactions)
 
-    tree_size_bytes = asizeof.asizeof(tree)
+    tree_size_bytes = asizeof.asizeof(trie)
     tree_size_mb = tree_size_bytes / (1024 * 1024)
     print("tree_size_mb:" + str(tree_size_mb))
 
