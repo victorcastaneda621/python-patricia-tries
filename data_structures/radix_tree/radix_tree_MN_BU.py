@@ -198,13 +198,13 @@ class RadixTree_MN_BU(RadixTree):
         
         # MultiChildNode
         total_nodes = 1
-        max_sub_depth = 1
+        max_sub_depth = 0
         for child in node.children.values():
             c_count, c_depth = self._count_nodes_and_max_depth(child)
             total_nodes += c_count
             max_sub_depth = max(max_sub_depth, c_depth)
         
-        return total_nodes, max_sub_depth
+        return total_nodes, 1 + max_sub_depth
         
     def print(self):
         self._print(self.root, 0, str(self.root.prefix))

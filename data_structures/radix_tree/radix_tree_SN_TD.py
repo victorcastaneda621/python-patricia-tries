@@ -121,19 +121,6 @@ class RadixTree_SN_TD(RadixTree):
     def print(self):
         self._print(self.root, 0, str(self.root.prefix))
 
-    def count_nodes_and_max_depth(self):
-        return self._count_nodes_and_max_depth(self.root)
-    
-    def _count_nodes_and_max_depth(self, node):
-        total_nodes = 1
-        max_sub_depth = 1
-        for child in node.children.values():
-            c_count, c_depth = self._count_nodes_and_max_depth(child)
-            total_nodes += c_count
-            max_sub_depth = max(max_sub_depth, c_depth)
-        
-        return total_nodes, max_sub_depth
-
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 #
 #·├── (--> [], support: 3)
