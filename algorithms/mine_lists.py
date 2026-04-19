@@ -1,7 +1,11 @@
 from collections import Counter
 import time
 from general_utils import prune_dataset
-#import tracemalloc
+import tracemalloc
+import sys, os
+
+sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
+from pympler import asizeof
 
 def select(D, X):
         out = []
@@ -13,7 +17,7 @@ def select(D, X):
 
 def mine_lists(transactions, min_supp):
     before_build = time.perf_counter()
-    #tracemalloc.start()
+    tracemalloc.start()
 
     transactions = prune_dataset(transactions, min_supp)
 
@@ -25,6 +29,10 @@ def mine_lists(transactions, min_supp):
     X,h,l = [None for _ in IL],0,0
 
     after_build = time.perf_counter()
+
+    list_size_bytes = asizeof.asizeof(transactions)
+    list_size_mb = list_size_bytes / (1024 * 1024)
+    print("tree_size_mb:" + str(list_size_mb))
 
     returned = []
     while l<len(IL):
@@ -46,16 +54,16 @@ def mine_lists(transactions, min_supp):
                 l=0
 
     after_mining = time.perf_counter()
-    #current, peak = tracemalloc.get_traced_memory()
-    #peak_memory_mb = peak / (1024 * 1024)
-    #tracemalloc.stop()
-    #print("peak_memory_mb: " + str(peak_memory_mb))
+    current, peak = tracemalloc.get_traced_memory()
+    peak_memory_mb = peak / (1024 * 1024)
+    tracemalloc.stop()
+    print("peak_memory_mb: " + str(peak_memory_mb))
     return {"build_time": after_build - before_build,
             "mining_time": after_mining - after_build,
             "itemsets": returned,
             "node_count": "-",
             "max_depth": "-",
-            "peak_memory_mb": "-",
-            "tree_size_mb":"-"
+            "peak_memory_mb": peak_memory_mb,
+            "tree_size_mb": list_size_mb
             }
 

@@ -23,7 +23,7 @@ DATASETS = [
     "artificial_1",
 ]
 
-METRICS_FILE = "files/metrics.csv"
+METRICS_FILE = "files/metrics_mem.csv"
 
 def load_local_dataset(path):
     transactions = []
@@ -68,6 +68,8 @@ def run_experiment(args):
         "mining_time": results.get("mining_time", "-"),
         "node_count": results.get("node_count", "-"),
         "max_depth": results.get("max_depth", "-"),
+        "peak_mem_mb": results.get("peak_memory_mb", "-"),
+        "size_mb": results.get("tree_size_mb", "-"),
         "number_itemsets": len(results["itemsets"]) if "itemsets" in results else "-"
     }
 
