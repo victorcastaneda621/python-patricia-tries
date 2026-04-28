@@ -2,16 +2,16 @@ import argparse, os
 
 from general_utils import write_metrics, write_results
 from algorithms.mine_patricia import mine_patricia
-from algorithms.mine_lists import mine_lists
-from algorithms.mine_radix import mine_radix
+from algorithms.topk_lists import mine_topk_lists
+from algorithms.topk_radix import mine_topk_radix
 
 ALGORITHMS = {
     "patricia": mine_patricia,
-    "list": mine_lists,
-    "radix-SN-BU": lambda t, m: mine_radix(t, m, single_node=True, top_down=False),
-    "radix-SN-TD": lambda t, m: mine_radix(t, m, single_node=True, top_down=True),
-    "radix-MN-BU": lambda t, m: mine_radix(t, m, single_node=False, top_down=False),
-    "radix-MN-TD": lambda t, m: mine_radix(t, m, single_node=False, top_down=True)
+    "list": mine_topk_lists,
+    "radix-SN-BU": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=False),
+    "radix-SN-TD": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=True),
+    "radix-MN-BU": lambda t, m: mine_topk_radix(t, m, single_node=False, top_down=False),
+    "radix-MN-TD": lambda t, m: mine_topk_radix(t, m, single_node=False, top_down=True)
 }
 
 DATASETS = [
@@ -58,12 +58,12 @@ def run_experiment(args):
     transactions = load_dataset(args.data)
     algorithm = ALGORITHMS[args.alg]
 
-    results = algorithm(transactions, args.minsup) # Call the chosen miner
+    results = algorithm(transactions, args.k) # Call the chosen miner
 
     metrics = {
         "algorithm": getattr(args, "alg", "-"),
         "dataset": getattr(args, "data", "-"),
-        "minsup": getattr(args, "minsup", "-"),
+        "k": getattr(args, "k", "-"),
         "build_time": results.get("build_time", "-"),
         "mining_time": results.get("mining_time", "-"),
         "node_count": results.get("node_count", "-"),
@@ -93,8 +93,8 @@ if __name__ == '__main__':
                         required=True, help="Algorithm to run")
     parser.add_argument("--data", choices=DATASETS, 
                         required=True, help="Dataset to use")
-    parser.add_argument("--minsup", type=int,
-                        required=True, help="Minimun support")
+    parser.add_argument("--k", type=int,
+                        required=True, help="Number of itemsets to mine")
     parser.add_argument("--benchmark", action="store_true", 
                         help="Run in benchmark mode (skip saving results, log memory)")
     args = parser.parse_args()

@@ -54,10 +54,13 @@ def write_results(itemsets: list, args):
 
     args
         Namespace returned by Argparse. Used to customize the file name:
-        f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
+        f"files/results/{args.alg}_{args.data}_{args.minsup|arhs.k}.txt"
 
     """
-    filename = f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
+    if getattr(args, "minsup", None):
+        filename = f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
+    else:
+        filename = f"files/results/{args.alg}_{args.data}_{args.k}.txt"
     with open(filename, "w") as f:
         for itemset in itemsets:
             f.write(",".join(itemset) + "\n")

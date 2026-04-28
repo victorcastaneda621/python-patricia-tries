@@ -121,6 +121,50 @@ class RadixTree_SN_TD(RadixTree):
     def print(self):
         self._print(self.root, 0, str(self.root.prefix))
 
+    def get_closure(self, itemset, order):
+        item_counts = {}
+        supp = self._get_closure_traverse(itemset, self.root, len(itemset) - 1, item_counts, order)
+        if supp == 0:
+            return set(), 0
+        closure = set(itemset)
+        for item, count in item_counts.items():
+            if count == supp:
+                closure.add(item)
+        return closure, supp
+
+    def _get_closure_traverse(self, itemset, node, j, item_counts, order):
+        pre_match_items = []  # items seen before match completes
+        
+        for item in node.prefix:
+            if j < 0:
+                item_counts[item] = item_counts.get(item, 0) + node.count
+            elif item == itemset[j]:
+                pre_match_items.append(item)
+                j -= 1
+            elif self._compare_to(item, itemset[j], order) == 1:
+                return 0  # itemset[j] should have appeared by now, prune
+            else:
+                pre_match_items.append(item)  # item is on path but not in target yet
+
+        if j < 0:
+            # all matched, recurse into all children counting items
+            for child_key, child in node.children.items():
+                self._get_closure_traverse(itemset, child, j, item_counts, order)
+            supp = node.count
+        else:
+            # still items to match, only recurse into promising children
+            supp = 0
+            for child_key, child in node.children.items():
+                if self._compare_to(child_key, itemset[j], order) != 1:
+                    supp += self._get_closure_traverse(itemset, child, j, item_counts, order)
+
+        # now we know the actual support for this subtree, add pre-match items
+        for item in pre_match_items:
+            item_counts[item] = item_counts.get(item, 0) + supp
+
+        return supp
+
+
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 #
 #·├── (--> [], support: 3)
