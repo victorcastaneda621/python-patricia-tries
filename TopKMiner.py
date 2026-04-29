@@ -66,6 +66,7 @@ def run_experiment(args):
         "k": getattr(args, "k", "-"),
         "build_time": results.get("build_time", "-"),
         "mining_time": results.get("mining_time", "-"),
+        "total_time": results.get("mining_time", "-") + results.get("build_time", "-"),
         "node_count": results.get("node_count", "-"),
         "max_depth": results.get("max_depth", "-"),
         "peak_mem_mb": results.get("peak_memory_mb", "-"),
@@ -84,7 +85,7 @@ def run_experiment(args):
         "Build time: " + str(results["build_time"]) + " s" +
         "\nMining time: " + str(results["mining_time"]) + " s" +
         "\nTotal time: " + str(results["build_time"] + results["mining_time"]) + " s" +
-        "\nNumber of frequent itemsets: " + str(len(results["itemsets"]))
+        "\nNumber of frequent closed itemsets: " + str(len(results["itemsets"]))
         )
         
 if __name__ == '__main__':
