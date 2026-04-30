@@ -101,10 +101,10 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
                     continue
 
                 itemset = sorted(Y | {item_j}, key=lambda a: order[a], reverse=True)
-                supp_X, ppc_ok = tree.get_support_and_ppc_check(itemset, order)
+                supp_X, ppc_ok, X = tree.get_support_ppc_and_closure(itemset, order)
 
                 if supp_X >= sigma and ppc_ok:
-                    heapq.heappush(Q, (-supp_X, Y | {item_j}, j, None))
+                    heapq.heappush(Q, (-supp_X, X | {item_j}, j, None))
                     remaining = K - extracted
                     if extracted + len(Q) >= K and remaining > 0:
                         sigma = -heapq.nsmallest(remaining, Q)[-1][0]
@@ -125,47 +125,3 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
         "peak_memory_mb": "-",
         "tree_size_mb": "-",
     }
-
-"""Here is exactly why your topk_lists.py is >10x faster, and how you can optimize the Radix version.
-1. The Pure Python vs. C-Extension Battle (The Main Culprit)
-
-In topk_lists.py, your heavy lifting is done by two functions:
-
-    X.issubset(tran)
-
-    set.intersection(*[set(t) for t in D])
-
-Even though you are writing Python, these specific set operations are implemented in highly optimized C code under the hood. They run at bare-metal speeds, bypassing Python's object overhead.
-
-In topk_radix.py, every time you traverse the tree to check support or closures, you are executing pure Python bytecode. You are navigating objects, chasing pointers, making function calls, and doing dictionary/list lookups for child nodes. The CPU overhead of Python object management completely swallows the algorithmic advantages of the tree.
-2. The Sorting Bottleneck in the Hot Loop
-
-In mine_topk_radix, inside your innermost for loop, you have this line:
-Python
-
-itemset = sorted(Y | {item_j}, key=lambda a: order[a], reverse=True)
-
-You are taking a set, unioning it, and then performing a full Timsort with a custom lambda function (which adds a Python function call overhead to every single comparison during the sort). You are doing this thousands of times per second.
-
-How to optimize it: Since Y is presumably already sorted (or can be maintained as a sorted list), and you are only adding one item (item_j), do not use sorted(). Use the bisect module to insert item_j into a list in O(N) time, or maintain the itemsets in a way that respects the order natively without lambda functions.
-3. The Heap Rebuild Penalty
-
-Look at how both algorithms update sigma when the queue gets large:
-Python
-
-sigma = -heapq.nsmallest(remaining, Q)[-1][0]
-Q = [e for e in Q if -e[0] >= sigma]
-heapq.heapify(Q)
-
-You are running nsmallest (which takes O(NlogK)), followed by a full list comprehension, followed by an O(N) heapify. You are doing this every single time a new valid extension is found and the queue is full.
-
-How to optimize it:
-If you just need to drop elements that fall below the new sigma, you don't need nsmallest every time. Since you only care about maintaining the top K elements, consider keeping Q at exactly size K using heapq.heappushpop(). This forces the heap to self-manage its size efficiently in C, rather than you manually rebuilding it in Python.
-4. Delayed Closure Processing vs. Double Traversal
-
-In topk_lists.py, your closure(D_Y) function gives you both the itemset closure and its support in one swift C-level sweep.
-
-In topk_radix.py, you have to traverse the tree to check supp_Y, ppc_ok = tree.get_support_and_ppc_check(...). Then, if it passes, you traverse the tree again later with Y, _ = tree.get_closure(itemset_Y, order).
-
-How to optimize it:
-If possible, modify your Radix Tree's get_support_and_ppc_check to return the closure at the same time. If it's already at the correct node in the tree to know the support, it should be able to look at the node's lineage/children to determine the closure without starting a second traversal from the root."""

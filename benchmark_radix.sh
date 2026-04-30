@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=4096        
 #SBATCH -n 1                      
 #SBATCH -c 1
-#SBATCH --array=0-19
+#SBATCH --array=1,6,11,16
 
 mkdir -p logs
 
@@ -19,7 +19,7 @@ case $SLURM_ARRAY_TASK_ID in
     1)
         ALG="radix-MN-TD"
         DATASET="connect4"
-        MINSUP=40535
+        MINSUP=44535
         ;;
     2)
         ALG="radix-MN-TD"
@@ -44,7 +44,7 @@ case $SLURM_ARRAY_TASK_ID in
     6)
         ALG="radix-MN-BU"
         DATASET="connect4"
-        MINSUP=40535
+        MINSUP=44535
         ;;
     7)
         ALG="radix-MN-BU"
@@ -69,7 +69,7 @@ case $SLURM_ARRAY_TASK_ID in
     11)
         ALG="radix-SN-TD"
         DATASET="connect4"
-        MINSUP=40535
+        MINSUP=44535
         ;;
     12)
         ALG="radix-SN-TD"
@@ -94,7 +94,7 @@ case $SLURM_ARRAY_TASK_ID in
     16)
         ALG="radix-SN-BU"
         DATASET="connect4"
-        MINSUP=40535
+        MINSUP=44535
         ;;
     17)
         ALG="radix-SN-BU"

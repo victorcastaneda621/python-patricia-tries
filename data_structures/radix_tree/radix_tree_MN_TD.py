@@ -176,27 +176,11 @@ class RadixTree_MN_TD(RadixTree):
     def count_nodes_and_max_depth(self):
         return self._count_nodes_and_max_depth(self.root)
     
-    def get_support_ppc_and_closure(self, itemset, order):
-        if not self.root:
-            return 0, False, set()
-        if not itemset:
-            item_counts = {}
-            self._get_closure_traverse(itemset, self.root, -1, item_counts, order)
-            supp = self.root.count
-            closure = {item for item, count in item_counts.items() if count == supp}
-            return supp, True, closure
-        extension_item = itemset[0]
-        itemset_set = set(itemset)
-        item_counts = {}
-        supp, ppc_ok = self._traverse(itemset, self.root, len(itemset) - 1,
-                                    extension_item, itemset_set, item_counts, order)
-        if not ppc_ok or supp == 0:
-            return 0, False, set()
-        closure = set(itemset)
-        for item, count in item_counts.items():
-            if count == supp:
-                closure.add(item)
-        return supp, True, closure
+    def _traverse_all(self, node, item_counts):
+        for item in node.prefix:
+            item_counts[item] = item_counts.get(item, 0) + node.count
+        for child in self._get_children(node):
+            self._traverse_all(child, item_counts)
 
     def _traverse(self, itemset, node, j, extension_item, itemset_set, item_counts, order):
         pre_match_items = []
@@ -215,16 +199,14 @@ class RadixTree_MN_TD(RadixTree):
 
         if j < 0:
             supp = node.count
-            children = self._get_children(node)
-            for child in children:
+            for child in self._get_children(node):
                 child_supp, child_ppc = self._traverse(
                     itemset, child, j, extension_item, itemset_set, item_counts, order)
                 if not child_ppc:
                     return 0, False
         else:
             supp = 0
-            children = self._get_children(node)
-            for child in children:
+            for child in self._get_children(node):
                 if self._compare_to(child.prefix[0], itemset[j], order) != 1:
                     child_supp, child_ppc = self._traverse(
                         itemset, child, j, extension_item, itemset_set, item_counts, order)
@@ -235,40 +217,11 @@ class RadixTree_MN_TD(RadixTree):
         for item in pre_match_items:
             item_counts[item] = item_counts.get(item, 0) + supp
         return supp, True
-    
+
     def _get_children(self, node):
         if node.node_type == 0: return []
         if node.node_type == 1: return [node.child]
         return node.children.values()
-    
-    def get_support_ppc_and_closure(self, itemset, order):
-        if not self.root:
-            return 0, False, set()
-        if not itemset:
-            item_counts = {}
-            supp = self.root.count
-            # traverse entire tree counting all items
-            self._traverse_all(self.root, item_counts)
-            closure = {item for item, count in item_counts.items() if count == supp}
-            return supp, True, closure
-        extension_item = itemset[0]
-        itemset_set = set(itemset)
-        item_counts = {}
-        supp, ppc_ok = self._traverse(itemset, self.root, len(itemset) - 1,
-                                    extension_item, itemset_set, item_counts, order)
-        if not ppc_ok or supp == 0:
-            return 0, False, set()
-        closure = set(itemset)
-        for item, count in item_counts.items():
-            if count == supp:
-                closure.add(item)
-        return supp, True, closure
-
-    def _traverse_all(self, node, item_counts):
-        for item in node.prefix:
-            item_counts[item] = item_counts.get(item, 0) + node.count
-        for child in self._get_children(node):
-            self._traverse_all(child, item_counts)
 
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 #

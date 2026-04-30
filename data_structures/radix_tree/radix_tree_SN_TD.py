@@ -121,90 +121,69 @@ class RadixTree_SN_TD(RadixTree):
     def print(self):
         self._print(self.root, 0, str(self.root.prefix))
 
-    def get_closure(self, itemset, order):
+    def get_support_ppc_and_closure(self, itemset, order):
         if not self.root:
-            return set(), 0
+            return 0, False, set()
+        if not itemset:
+            item_counts = {}
+            self._traverse_all(self.root, item_counts)
+            supp = self.root.count
+            closure = {item for item, count in item_counts.items() if count == supp}
+            return supp, True, closure
+        extension_item = itemset[0]
+        itemset_set = set(itemset)
         item_counts = {}
-        supp = self._get_closure_traverse(itemset, self.root, len(itemset) - 1, item_counts, order)
-        if supp == 0:
-            return set(), 0
+        supp, ppc_ok = self._traverse(itemset, self.root, len(itemset) - 1,
+                                    extension_item, itemset_set, item_counts, order)
+        if not ppc_ok or supp == 0:
+            return 0, False, set()
         closure = set(itemset)
         for item, count in item_counts.items():
             if count == supp:
                 closure.add(item)
-        return closure, supp
-    
-    def _get_closure_traverse(self, itemset, node, j, item_counts, order):
+        return supp, True, closure
+
+    def _traverse_all(self, node, item_counts):
+        for item in node.prefix:
+            item_counts[item] = item_counts.get(item, 0) + node.count
+        for child in node.children.values():
+            self._traverse_all(child, item_counts)
+
+    def _traverse(self, itemset, node, j, extension_item, itemset_set, item_counts, order):
         pre_match_items = []
-        
         for item in node.prefix:
             if j < 0:
+                if item not in itemset_set and self._compare_to(item, extension_item, order) == -1:
+                    return 0, False
                 item_counts[item] = item_counts.get(item, 0) + node.count
             elif item == itemset[j]:
                 pre_match_items.append(item)
                 j -= 1
             elif self._compare_to(item, itemset[j], order) == 1:
-                return 0
+                return 0, True
             else:
                 pre_match_items.append(item)
 
         if j < 0:
-            for child_key, child in node.children.items():
-                self._get_closure_traverse(itemset, child, j, item_counts, order)
             supp = node.count
-        else:
-            supp = 0
-            for child_key, child in node.children.items():
-                if self._compare_to(child_key, itemset[j], order) != 1:
-                    supp += self._get_closure_traverse(itemset, child, j, item_counts, order)
-
-        for item in pre_match_items:
-            item_counts[item] = item_counts.get(item, 0) + supp
-
-        return supp
-
-    def get_support_and_ppc_check(self, itemset, order):
-        if not itemset:
-            return self.root.count if self.root else 0, True
-        extension_item = itemset[0]  # least frequent = the item we're extending with
-                                    # (passed in reverse, so index 0 = least frequent)
-        itemset_set = set(itemset)
-        return self._get_support_ppc_at_node(itemset, self.root, len(itemset) - 1, 
-                                            extension_item, itemset_set, order)
-
-    def _get_support_ppc_at_node(self, itemset, node, j, extension_item, itemset_set, order):
-        for item in node.prefix:
-            if j < 0:
-                # all matched, check if this item is more frequent than extension_item
-                # and not in itemset — if so, ppc fails
-                if item not in itemset_set and self._compare_to(item, extension_item, order) == -1:
-                    return 0, False  # ppc failed, no point continuing
-            elif item == itemset[j]:
-                j -= 1
-            elif self._compare_to(item, itemset[j], order) == 1:
-                return 0, True  # branch pruned, support 0, ppc irrelevant
-        
-        if j < 0:
-            supp = 0
-            ppc_ok = True
-            for child_key, child in node.children.items():
-                child_supp, child_ppc = self._get_support_ppc_at_node(
-                    itemset, child, j, extension_item, itemset_set, order)
+            for child in node.children.values():
+                child_supp, child_ppc = self._traverse(
+                    itemset, child, j, extension_item, itemset_set, item_counts, order)
                 if not child_ppc:
-                    return 0, False  # ppc failed somewhere below, stop early
-                supp += child_supp
-            return node.count, ppc_ok
+                    return 0, False
         else:
             supp = 0
-            ppc_ok = True
-            for child_key, child in node.children.items():
-                if self._compare_to(child_key, itemset[j], order) != 1:
-                    child_supp, child_ppc = self._get_support_ppc_at_node(
-                        itemset, child, j, extension_item, itemset_set, order)
+            for child in node.children.values():
+                if self._compare_to(child.prefix[0], itemset[j], order) != 1:
+                    child_supp, child_ppc = self._traverse(
+                        itemset, child, j, extension_item, itemset_set, item_counts, order)
                     if not child_ppc:
                         return 0, False
                     supp += child_supp
-            return supp, ppc_ok
+
+        for item in pre_match_items:
+            item_counts[item] = item_counts.get(item, 0) + supp
+        return supp, True
 
 
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
