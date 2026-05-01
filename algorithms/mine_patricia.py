@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
 
-def mine_patricia(transactions, min_supp):
+def mine_patricia(transactions, min_supp, benchmark=False):
     before_trie_build = time.perf_counter()
 
     tracemalloc.start()
@@ -43,7 +43,9 @@ def mine_patricia(transactions, min_supp):
                 X[h] = IL[l]
                 X_as_bit_seq = X_as_bit_seq | (1 << l)
                 h += 1
-                returned.append(X[:h])
+
+                if not benchmark:
+                    returned.append(X[:h])
 
                 for i in range(l-1,-1,-1):
                     count[IL[i]] = trie.get_support_of_itemset_as_bit_seq((1 << i) | X_as_bit_seq)

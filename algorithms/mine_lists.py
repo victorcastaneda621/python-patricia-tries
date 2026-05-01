@@ -15,7 +15,7 @@ def select(D, X):
                 out.append(tran)
         return out
 
-def mine_lists(transactions, min_supp):
+def mine_lists(transactions, min_supp, benchmark=False):
     before_build = time.perf_counter()
     tracemalloc.start()
 
@@ -45,7 +45,9 @@ def mine_lists(transactions, min_supp):
             else:
                 X[h] = IL[l]
                 h += 1
-                returned.append(X[:h])
+
+                if not benchmark:
+                    returned.append(X[:h])
 
                 if l:
                     DX = select(transactions,X[:h])

@@ -9,7 +9,7 @@ import os
 sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
 
-def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
+def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark: False):
     before_trie_build = time.perf_counter()
     tracemalloc.start()
 
@@ -50,7 +50,8 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
             else:
                 X[h] = IL[l]
                 h += 1
-                returned.append(X[:h])
+                if not benchmark:
+                    returned.append(X[:h])
 
                 for i in range(l-1,-1,-1):
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)

@@ -6,12 +6,12 @@ from algorithms.mine_lists import mine_lists
 from algorithms.mine_radix import mine_radix
 
 ALGORITHMS = {
-    "patricia": mine_patricia,
-    "list": mine_lists,
-    "radix-SN-BU": lambda t, m: mine_radix(t, m, single_node=True, top_down=False),
-    "radix-SN-TD": lambda t, m: mine_radix(t, m, single_node=True, top_down=True),
-    "radix-MN-BU": lambda t, m: mine_radix(t, m, single_node=False, top_down=False),
-    "radix-MN-TD": lambda t, m: mine_radix(t, m, single_node=False, top_down=True)
+    "patricia": lambda t, m, b: mine_patricia(t, m, b),
+    "list": lambda t, m, b: mine_lists(t, m, b),
+    "radix-SN-BU": lambda t, m, b: mine_radix(t, m, single_node=True, top_down=False, benchmark=b),
+    "radix-SN-TD": lambda t, m, b: mine_radix(t, m, single_node=True, top_down=True, benchmark=b),
+    "radix-MN-BU": lambda t, m, b: mine_radix(t, m, single_node=False, top_down=False, benchmark=b),
+    "radix-MN-TD": lambda t, m, b: mine_radix(t, m, single_node=False, top_down=True, benchmark=b)
 }
 
 DATASETS = [
@@ -58,7 +58,7 @@ def run_experiment(args):
     transactions = load_dataset(args.data)
     algorithm = ALGORITHMS[args.alg]
 
-    results = algorithm(transactions, args.minsup) # Call the chosen miner
+    results = algorithm(transactions, args.minsup, args.benchmark) # Call the chosen miner
 
     metrics = {
         "algorithm": getattr(args, "alg", "-"),
