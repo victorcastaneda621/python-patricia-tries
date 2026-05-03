@@ -176,6 +176,28 @@ class RadixTree_MN_TD(RadixTree):
     def count_nodes_and_max_depth(self):
         return self._count_nodes_and_max_depth(self.root)
     
+    def get_support_ppc_and_closure(self, itemset, order):
+        if not self.root:
+            return 0, False, set()
+        if not itemset:
+            item_counts = {}
+            self._traverse_all(self.root, item_counts)
+            supp = self.root.count
+            closure = {item for item, count in item_counts.items() if count == supp}
+            return supp, True, closure
+        extension_item = itemset[0]
+        itemset_set = set(itemset)
+        item_counts = {}
+        supp, ppc_ok = self._traverse(itemset, self.root, len(itemset) - 1,
+                                    extension_item, itemset_set, item_counts, order)
+        if not ppc_ok or supp == 0:
+            return 0, False, set()
+        closure = set(itemset)
+        for item, count in item_counts.items():
+            if count == supp:
+                closure.add(item)
+        return supp, True, closure
+    
     def _traverse_all(self, node, item_counts):
         for item in node.prefix:
             item_counts[item] = item_counts.get(item, 0) + node.count

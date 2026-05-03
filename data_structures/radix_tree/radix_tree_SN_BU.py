@@ -139,53 +139,68 @@ class RadixTree_SN_BU(RadixTree):
         for child in node.children.values():
             self._count_items_downward(child, item_counts)
 
-    def get_support_ppc_and_closure(self, itemset, order):
-        if not itemset:
-            return self.root.count if self.root else 0, True, set()
-        target_item = itemset[0]
-        if target_item not in self.node_lists:
+    def get_support_ppc_and_closure(self, itemset, item_to_order):
+        if not itemset: # Empty itemset
+            if not self.root: return 0, True, set()
+            closure = [item for item in item_to_order
+               if sum(node.count for node in self.node_lists.get(item, [])) == self.root.count]
+            return self.root.count, True, closure
+
+        extension_item = itemset[0]
+        target_nodes = self.node_lists.get(extension_item)
+        if not target_nodes:
             return 0, True, set()
+            
         itemset_set = set(itemset)
         target_len = len(itemset_set)
-        extension_item = itemset[0]
         item_counts = {}
         total_support = 0
+        ord_ext = item_to_order[extension_item]
 
-        for node in self.node_lists[target_item]:
-            current = node
+        for node in target_nodes:
+            # 1. Check path contains all items in the itemsets
+            path_items = []
+            curr = node
             found_count = 0
-            path_items = set()
-            while current is not None:
-                for p_item in current.prefix:
-                    path_items.add(p_item)
+            while curr:
+                p_prefix = curr.prefix
+                for p_item in p_prefix:
+                    path_items.append(p_item)
                     if p_item in itemset_set:
                         found_count += 1
-                if found_count == target_len:
-                    break
-                current = current.parent
-            if found_count != target_len:
-                continue
+                curr = curr.parent
             
+            if found_count < target_len:
+                continue
+                
+            node_supp = node.count
+            total_support += node_supp
+            
+            # 2. accumulate upwards
             for p_item in path_items:
-                if p_item not in itemset_set and order[p_item] < order[extension_item]:
-                    return 0, False, set()
-            # collect items downward
-            node_item_counts = {}
-            self._count_items_downward(node, node_item_counts)
-            while current is not None:
-                for p_item in current.prefix:
-                    path_items.add(p_item)
-                    if p_item in itemset_set:
-                        found_count += 1
-                current = current.parent  # always go to root, not break early
-            for item, count in node_item_counts.items():
-                item_counts[item] = item_counts.get(item, 0) + count
-            total_support += node.count
+                item_counts[p_item] = item_counts.get(p_item, 0) + node_supp
+            
+            # 3. accumulate downwards
+            if node.children:
+                stack = list(node.children.values())
+                while stack:
+                    child = stack.pop()
+                    c_supp = child.count
+                    for c_item in child.prefix:
+                        item_counts[c_item] = item_counts.get(c_item, 0) + c_supp
+                    if child.children:
+                        stack.extend(child.children.values())
 
         if total_support == 0:
             return 0, True, set()
-        closure = set(itemset)
+
+        # 4. ppc check and closure construction
+        # Prune only if an item not in itemset has smaller order AND is in the closure
+        closure = set()
         for item, count in item_counts.items():
             if count == total_support:
+                if item not in itemset_set and item_to_order[item] < ord_ext:
+                    return 0, False, set()
                 closure.add(item)
+                
         return total_support, True, closure

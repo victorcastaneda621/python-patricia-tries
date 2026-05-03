@@ -1,12 +1,12 @@
 import argparse, os
 
 from general_utils import write_metrics, write_results
-from algorithms.mine_patricia import mine_patricia
+from algorithms.topk_patricia import mine_topk_patricia
 from algorithms.topk_lists import mine_topk_lists
 from algorithms.topk_radix import mine_topk_radix
 
 ALGORITHMS = {
-    "patricia": mine_patricia,
+    "patricia": mine_topk_patricia,
     "list": mine_topk_lists,
     "radix-SN-BU": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=False),
     "radix-SN-TD": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=True),

@@ -9,16 +9,17 @@ from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
  
-def attempt_ppc_extensions(X, n, item_order, tree, order, sigma, Q):
+def attempt_ppc_extensions(X, n, tree, order_to_item, item_to_order, sigma, Q):
+    ############### X_list = sorted(list(X), key=lambda a: order[a], reverse=True)
     for j in range(1, n + 1):
-        item = item_order[j - 1]
+        item = order_to_item[j - 1]
         if item in X:
             continue  # item j already in X, so item can't extend X
 
         # This returns Y = the closure of the projection,
         # so Y contains all items tha always appear with X U item
-        itemset = sorted(X | {item}, key=lambda a: order[a], reverse=True)
-        supp_Y, ppc_ok, Y = tree.get_support_ppc_and_closure(itemset, order)
+        itemset = [item] + [i for i in X if item_to_order[i] < item_to_order[item]]
+        supp_Y, ppc_ok, Y = tree.get_support_ppc_and_closure(itemset, item_to_order)
 
         if supp_Y < sigma or not ppc_ok: 
             # The current extenson has support lower than our current
@@ -44,7 +45,9 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
         else:
             tree = radix_tree_MN_BU.RadixTree_MN_BU()
 
-    transactions, _, order = radix_tree_count_sort(transactions)
+    transactions, a, item_to_order = radix_tree_count_sort(transactions)
+    order_to_item = list(item_to_order.keys())
+
     tree.insert(transactions)
 
     if K == 0:
@@ -58,8 +61,7 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
         "tree_size_mb": "-",
     }
 
-    item_order = sorted(order.keys(), key=lambda a: order[a])
-    n = len(item_order)
+    n = len(order_to_item)
 
     after_build = time.perf_counter()
 
@@ -75,14 +77,14 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
     extracted = 0
     returned = []
 
-    _, _, current_closure = tree.get_support_ppc_and_closure([], order)
+    _, _, current_closure = tree.get_support_ppc_and_closure([], item_to_order)
     if current_closure: # i.e. it is not empty
         returned.append(current_closure)
         extracted += 1
         if K == 1:
             sigma_prime = len(transactions)
 
-    attempt_ppc_extensions(current_closure, n, item_order, tree, order, sigma, Q)
+    attempt_ppc_extensions(current_closure, n, tree, order_to_item, item_to_order, sigma, Q)
     while Q and -Q[0][0] >= sigma_prime: # Q[0] is the top of the queue
         supp_Y, Y, i, _ = heapq.heappop(Q)
         supp_Y = -supp_Y
@@ -94,14 +96,14 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
         returned.append(Y) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:
-            Y_set = set(Y)
+            Y_sorted_list = list(Y)
             for j in range(i+1, n+1):
-                item_j = item_order[j - 1]
-                if item_j in Y_set:
+                item_j = order_to_item[j - 1]
+                if item_j in Y:
                     continue
 
-                itemset = sorted(Y | {item_j}, key=lambda a: order[a], reverse=True)
-                supp_X, ppc_ok, X = tree.get_support_ppc_and_closure(itemset, order)
+                itemset = [item_j] + Y_sorted_list
+                supp_X, ppc_ok, X = tree.get_support_ppc_and_closure(itemset, item_to_order)
 
                 if supp_X >= sigma and ppc_ok:
                     heapq.heappush(Q, (-supp_X, X | {item_j}, j, None))

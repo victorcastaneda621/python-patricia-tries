@@ -38,8 +38,8 @@ def attempt_ppc_extensions(X, n, item_to_idx, item_order, D, sigma, Q):
         # We check that Y(j-1) = X(j-1), i.e. that the prefix of both itemsets
         # matches until item j-1.
         Y_prefix    = {a for a in Y   if item_to_idx[a] < j}
-        bot_prefix  = {a for a in X if item_to_idx[a] < j}
-        if Y_prefix != bot_prefix:
+        x_prefix  = {a for a in X if item_to_idx[a] < j}
+        if Y_prefix != x_prefix:
             continue # If they are not, then the extension added items before j
             # so we don't need to consider it
 
@@ -103,6 +103,12 @@ def mine_topk_lists(transactions, K):
             # If we have extracted enough items, we found the real minsup
             sigma_prime = supp_Y
         Y, _ = closure(D_Y)
+        
+        if Y in returned:
+            extracted -= 1
+            continue
+        Y, _ = closure(D_Y)
+        
         returned.append(Y) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:

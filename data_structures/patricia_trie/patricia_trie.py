@@ -208,6 +208,33 @@ class PatriciaTrie():
             left_count = self._count_nodes_and_max_depth(node.left_child)
             right_count = self._count_nodes_and_max_depth(node.right_child)
             return (1 + left_count[0] + right_count[0], 1 + max(left_count[1], right_count[1]))
+        
+    def get_support_and_closure_bits(self, bit_seq):
+        return self._get_support_and_closure_bits_at_node(self.root, bit_seq)
+
+    def _get_support_and_closure_bits_at_node(self, node, target_bits):
+        if (node.subtrie_or_mask & target_bits) != target_bits:
+            return 0, 0
+        
+        # 2. Leaf Case
+        if isinstance(node, LeafNode):
+            # In a leaf, the closure is just the key itself
+            return node.value, node.key
+            
+        # 3. Internal Node Case
+        if not is_bit_i_of_seq_zero(target_bits, node.skip):
+            # Target requires a 1 at this skip, only go right
+            return self._get_support_and_closure_bits_at_node(node.right_child, target_bits)
+        else:
+            # Target doesn't care, go both ways
+            l_supp, l_bits = self._get_support_and_closure_bits_at_node(node.left_child, target_bits)
+            r_supp, r_bits = self._get_support_and_closure_bits_at_node(node.right_child, target_bits)
+            
+            total_supp = l_supp + r_supp
+            if l_supp == 0: return r_supp, r_bits
+            if r_supp == 0: return l_supp, l_bits
+            
+            return total_supp, (l_bits & r_bits)
 
 ## PatriciaTrie ############################################################
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
