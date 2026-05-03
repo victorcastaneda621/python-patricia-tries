@@ -41,7 +41,10 @@ def mine_topk_patricia(transactions, K):
     extracted = 0
     returned = []
 
-    _, root_bits = trie._get_support_and_closure_bits_at_node(trie.root, 0)
+    supp_root, root_bits = trie._get_support_and_closure_bits_at_node(trie.root, 0)
+
+    if root_bits > 0 and supp_root >= sigma:
+        heapq.heappush(Q, (-supp_root, root_bits, len(trie.index_to_item) + 1))
 
     for j in range(1, len(trie.index_to_item) + 1):
         item_j_bit = 1 << (j - 1)
@@ -69,6 +72,8 @@ def mine_topk_patricia(transactions, K):
         if supp_Y > sigma:
             for j in range(i+1, len(trie.index_to_item)+1):
                 item_j_bit = 1 << (j - 1)
+
+                if Y_bits & item_j_bit: continue
 
                 target = Y_bits | item_j_bit
                 supp_X, X_bits = trie._get_support_and_closure_bits_at_node(trie.root, target)

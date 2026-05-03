@@ -212,23 +212,18 @@ class PatriciaTrie():
     def get_support_and_closure_bits(self, bit_seq):
         return self._get_support_and_closure_bits_at_node(self.root, bit_seq)
 
-    def _get_support_and_closure_bits_at_node(self, node, target_bits):
-        if (node.subtrie_or_mask & target_bits) != target_bits:
+    def _get_support_and_closure_bits_at_node(self, node, bit_seq):
+        if (node.subtrie_or_mask & bit_seq) != bit_seq:
             return 0, 0
         
-        # 2. Leaf Case
         if isinstance(node, LeafNode):
-            # In a leaf, the closure is just the key itself
             return node.value, node.key
             
-        # 3. Internal Node Case
-        if not is_bit_i_of_seq_zero(target_bits, node.skip):
-            # Target requires a 1 at this skip, only go right
-            return self._get_support_and_closure_bits_at_node(node.right_child, target_bits)
+        if not is_bit_i_of_seq_zero(bit_seq, node.skip):
+            return self._get_support_and_closure_bits_at_node(node.right_child, bit_seq)
         else:
-            # Target doesn't care, go both ways
-            l_supp, l_bits = self._get_support_and_closure_bits_at_node(node.left_child, target_bits)
-            r_supp, r_bits = self._get_support_and_closure_bits_at_node(node.right_child, target_bits)
+            l_supp, l_bits = self._get_support_and_closure_bits_at_node(node.left_child, bit_seq)
+            r_supp, r_bits = self._get_support_and_closure_bits_at_node(node.right_child, bit_seq)
             
             total_supp = l_supp + r_supp
             if l_supp == 0: return r_supp, r_bits
