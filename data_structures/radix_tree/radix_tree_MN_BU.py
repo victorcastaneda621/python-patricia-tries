@@ -370,16 +370,21 @@ class RadixTree_MN_BU(RadixTree):
                 for child_item in child.prefix:
                     item_counts[child_item] = item_counts.get(child_item, 0) + child_supp
             elif node.node_type == 2:
-                stack = list(node.children.values())
+                stack = []
+                if node.node_type == 1:
+                    stack.append(node.child)
+                elif node.node_type == 2:
+                    stack.extend(list(node.children.values()))
+
                 while stack:
                     child = stack.pop()
                     child_supp = child.count
                     for child_item in child.prefix:
                         item_counts[child_item] = item_counts.get(child_item, 0) + child_supp
-                    if isinstance(child, SingleChildNode):
-                        stack.extend(child.child)
-                    elif isinstance(child, MultiChildNode):
-                        stack.extend(child.children.values())
+                    if child.node_type == 1:
+                        stack.append(child.child)
+                    elif child.node_type == 2:
+                        stack.extend(list(child.children.values()))
 
         if total_support == 0:
             return 0, True, set()
