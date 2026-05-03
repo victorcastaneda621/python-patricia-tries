@@ -367,8 +367,8 @@ class RadixTree_MN_BU(RadixTree):
             
             # 3. accumulate downwards
             if node.node_type == 1:
-                for child_item in child.prefix:
-                    item_counts[child_item] = item_counts.get(child_item, 0) + child_supp
+                for child_item in node.child.prefix:
+                    item_counts[child_item] = item_counts.get(child_item, 0) + node.child.count
             elif node.node_type == 2:
                 stack = []
                 if node.node_type == 1:
