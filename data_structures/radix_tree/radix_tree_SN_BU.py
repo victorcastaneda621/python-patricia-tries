@@ -160,15 +160,15 @@ class RadixTree_SN_BU(RadixTree):
         for node in target_nodes:
             # 1. Check path contains all items in the itemsets
             path_items = []
-            curr = node
+            current = node
             found_count = 0
-            while curr:
-                p_prefix = curr.prefix
+            while current:
+                p_prefix = current.prefix
                 for p_item in p_prefix:
                     path_items.append(p_item)
                     if p_item in itemset_set:
                         found_count += 1
-                curr = curr.parent
+                current = current.parent
             
             if found_count < target_len:
                 continue
