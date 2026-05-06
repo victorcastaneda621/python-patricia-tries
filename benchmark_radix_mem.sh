@@ -52,14 +52,14 @@ case $SLURM_ARRAY_TASK_ID in
     31) ALG="radix-MN-BU"; DATASET="pumsb_star"; MINSUP=14000; BENCH=""            ;; # Con returned
 
     # ---------------- T10.I4.D100k (minsup = 200) ----------------
-    32) ALG="radix-SN-TD"; DATASET="T10I4D100k"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
-    33) ALG="radix-SN-TD"; DATASET="T10I4D100k"; MINSUP=200; BENCH=""            ;; # Con returned
-    34) ALG="radix-SN-BU"; DATASET="T10I4D100k"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
-    35) ALG="radix-SN-BU"; DATASET="T10I4D100k"; MINSUP=200; BENCH=""            ;; # Con returned
-    36) ALG="radix-MN-TD"; DATASET="T10I4D100k"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
-    37) ALG="radix-MN-TD"; DATASET="T10I4D100k"; MINSUP=200; BENCH=""            ;; # Con returned
-    38) ALG="radix-MN-BU"; DATASET="T10I4D100k"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
-    39) ALG="radix-MN-BU"; DATASET="T10I4D100k"; MINSUP=200; BENCH=""
+    32) ALG="radix-SN-TD"; DATASET="artificial_1"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
+    33) ALG="radix-SN-TD"; DATASET="artificial_1"; MINSUP=200; BENCH=""            ;; # Con returned
+    34) ALG="radix-SN-BU"; DATASET="artificial_1"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
+    35) ALG="radix-SN-BU"; DATASET="artificial_1"; MINSUP=200; BENCH=""            ;; # Con returned
+    36) ALG="radix-MN-TD"; DATASET="artificial_1"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
+    37) ALG="radix-MN-TD"; DATASET="artificial_1"; MINSUP=200; BENCH=""            ;; # Con returned
+    38) ALG="radix-MN-BU"; DATASET="artificial_1"; MINSUP=200; BENCH="--benchmark" ;; # Sin returned
+    39) ALG="radix-MN-BU"; DATASET="artificial_1"; MINSUP=200; BENCH=""
 esac
 # ------------------------------------
 
