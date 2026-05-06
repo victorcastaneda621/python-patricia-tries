@@ -63,8 +63,8 @@ case $SLURM_ARRAY_TASK_ID in
 esac
 # ------------------------------------
 
-echo "Starting: ID=$SLURM_ARRAY_TASK_ID | Algorithm=$ALG | Dataset=$DATASET | Minsup=$MINSUP $BENCH_FLAG"
+echo "Starting: ID=$SLURM_ARRAY_TASK_ID | Algorithm=$ALG | Dataset=$DATASET | Minsup=$MINSUP $BENCH"
 
-python3 PatriciaMine.py --alg "$ALG" --data "$DATASET" --minsup "$MINSUP" $BENCH_FLAG
+python3 PatriciaMine.py --alg "$ALG" --data "$DATASET" --minsup "$MINSUP" $BENCH
 
 echo "Finished"
