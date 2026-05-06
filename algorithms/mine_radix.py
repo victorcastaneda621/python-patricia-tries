@@ -4,14 +4,13 @@ from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 from general_utils import prune_dataset
 import tracemalloc
 import sys
-import os
+import os, gc
 
 sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
 
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark: False):
     before_trie_build = time.perf_counter()
-    tracemalloc.start()
 
     transactions = prune_dataset(transactions, min_supp)
 
@@ -38,6 +37,10 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchm
     X = ["" for _ in IL]
 
     after_trie_build = time.perf_counter()
+
+    del transactions 
+    gc.collect()
+    tracemalloc.start()
 
     returned = []
     while l<len(IL):
