@@ -11,7 +11,7 @@ from pympler import asizeof
 
 def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark: False):
     before_trie_build = time.perf_counter()
-    #tracemalloc.start()
+    tracemalloc.start()
 
     transactions = prune_dataset(transactions, min_supp)
 
@@ -29,9 +29,9 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchm
     transactions, count, order = radix_tree_count_sort(transactions)
     tree.insert(transactions)
 
-    #tree_size_bytes = asizeof.asizeof(tree)
-    #tree_size_mb = tree_size_bytes / (1024 * 1024)
-    #print("tree_size_mb:" + str(tree_size_mb))
+    tree_size_bytes = asizeof.asizeof(tree)
+    tree_size_mb = tree_size_bytes / (1024 * 1024)
+    print("tree_size_mb:" + str(tree_size_mb))
 
     IL = list(order.keys())
     h,l = 0,0
@@ -57,10 +57,10 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchm
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
     after_mining = time.perf_counter()
-    #current, peak = tracemalloc.get_traced_memory()
-    #peak_memory_mb = peak / (1024 * 1024)
-    #tracemalloc.stop()
-    #print("peak_memory_mb: " + str(peak_memory_mb))
+    current, peak = tracemalloc.get_traced_memory()
+    peak_memory_mb = peak / (1024 * 1024)
+    tracemalloc.stop()
+    print("peak_memory_mb: " + str(peak_memory_mb))
     print("itemsets:", str(len(returned)))
     #node_count, max_depth = tree.count_nodes_and_max_depth()
     return {"build_time": after_trie_build - before_trie_build,
@@ -68,6 +68,6 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchm
             "itemsets": returned,
             "node_count": "-",
             "max_depth": "-",
-            "peak_memory_mb": "-",
-            "tree_size_mb":"-"
+            "peak_memory_mb": peak_memory_mb,
+            "tree_size_mb":tree_size_mb
             }

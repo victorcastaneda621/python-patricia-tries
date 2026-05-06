@@ -23,7 +23,7 @@ DATASETS = [
     "artificial_1",
 ]
 
-METRICS_FILE = "files/special_missing_radix_time.csv"
+METRICS_FILE = "files/cats_mem.csv"
 
 def load_local_dataset(path):
     transactions = []
