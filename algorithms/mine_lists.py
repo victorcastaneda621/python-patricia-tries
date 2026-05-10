@@ -17,7 +17,6 @@ def select(D, X):
 
 def mine_lists(transactions, min_supp, benchmark=False):
     before_build = time.perf_counter()
-    tracemalloc.start()
 
     transactions = prune_dataset(transactions, min_supp)
 
@@ -33,6 +32,8 @@ def mine_lists(transactions, min_supp, benchmark=False):
     list_size_bytes = asizeof.asizeof(transactions)
     list_size_mb = list_size_bytes / (1024 * 1024)
     print("tree_size_mb:" + str(list_size_mb))
+
+    tracemalloc.start()
 
     returned = []
     while l<len(IL):
