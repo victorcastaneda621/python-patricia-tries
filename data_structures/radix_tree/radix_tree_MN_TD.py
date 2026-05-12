@@ -226,6 +226,7 @@ class RadixTree_MN_TD(RadixTree):
                     itemset, child, j, extension_item, itemset_set, item_counts, order)
                 if not child_ppc:
                     return 0, False
+                supp += child_supp
         else:
             supp = 0
             for child in self._get_children(node):
