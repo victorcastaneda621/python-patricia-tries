@@ -155,7 +155,7 @@ class RadixTree_SN_TD(RadixTree):
             if j < 0:
                 if item not in itemset_set and self._compare_to(item, extension_item, order) == -1:
                     return 0, False
-                item_counts[item] = item_counts.get(item, 0) + node.count
+                pre_match_items.append(item)
             elif item == itemset[j]:
                 pre_match_items.append(item)
                 j -= 1
@@ -166,6 +166,9 @@ class RadixTree_SN_TD(RadixTree):
 
         if j < 0:
             supp = node.count
+            for item in pre_match_items:
+                item_counts[item] = item_counts.get(item, 0) + supp
+
             for child in node.children.values():
                 child_supp, child_ppc = self._traverse(
                     itemset, child, j, extension_item, itemset_set, item_counts, order)
@@ -182,8 +185,6 @@ class RadixTree_SN_TD(RadixTree):
                         return 0, False
                     supp += child_supp
 
-        for item in pre_match_items:
-            item_counts[item] = item_counts.get(item, 0) + supp
         return supp, True
 
 
