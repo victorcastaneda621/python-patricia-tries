@@ -151,4 +151,5 @@ def mine_topk_lists(transactions, K):
         "max_depth": "-",
         "peak_memory_mb": "-",
         "tree_size_mb": "-",
+        "sigma": sigma
     }

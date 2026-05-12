@@ -126,4 +126,5 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
         "max_depth": "-",
         "peak_memory_mb": "-",
         "tree_size_mb": "-",
+        "sigma": sigma
     }
