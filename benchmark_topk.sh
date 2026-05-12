@@ -48,8 +48,8 @@ case $SLURM_ARRAY_TASK_ID in
 esac
 # ------------------------------------
 
-echo "Starting: ID=$SLURM_ARRAY_TASK_ID | Algorithm=$ALG | Dataset=$DATASET | K=$k | " $BENCH
+echo "Starting: ID=$SLURM_ARRAY_TASK_ID | Algorithm=$ALG | Dataset=$DATASET | K=$K | " $BENCH
 
-python3 TopKMiner.py --alg "$ALG" --data "$DATASET" --k "$k" $BENCH
+python3 TopKMiner.py --alg "$ALG" --data "$DATASET" --k "$K" $BENCH
 
 echo "Finished"
