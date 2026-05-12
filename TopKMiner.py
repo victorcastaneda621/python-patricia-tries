@@ -71,7 +71,8 @@ def run_experiment(args):
         "max_depth": results.get("max_depth", "-"),
         "peak_mem_mb": results.get("peak_memory_mb", "-"),
         "size_mb": results.get("tree_size_mb", "-"),
-        "number_itemsets": len(results["itemsets"]) if "itemsets" in results else "-"
+        "number_itemsets": len(results["itemsets"]) if "itemsets" in results else "-",
+        "sigma": results.get("sigma", "-")
     }
 
     # Make sure the files directory exists
