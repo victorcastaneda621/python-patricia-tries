@@ -48,8 +48,6 @@ def attempt_ppc_extensions(X, n, item_to_idx, item_order, D, sigma, Q):
         heapq.heappush(Q, (-supp_Y, D_Y, j, Y_prefix))
  
 def mine_topk_lists(transactions, K):
-    before_build = time.perf_counter()
-    # tracemalloc.start() # MEM
 
     if K == 0:
         return {
@@ -61,6 +59,9 @@ def mine_topk_lists(transactions, K):
         "peak_memory_mb": "-",
         "tree_size_mb": "-",
     }
+
+    before_build = time.perf_counter()
+    # tracemalloc.start() # MEM
 
     count = Counter()
     for t in transactions:
@@ -95,7 +96,7 @@ def mine_topk_lists(transactions, K):
                             item_to_idx, item_order, 
                             transactions, sigma, Q)
     while Q and -Q[0][0] >= sigma_prime: # Q[0] is the top of the queue
-        supp_Y, D_Y, i, Y_prefix = heapq.heappop(Q)
+        supp_Y, D_Y, i, _ = heapq.heappop(Q)
         supp_Y = -supp_Y
 
         extracted += 1 # We extract the next closed itemset from the heap

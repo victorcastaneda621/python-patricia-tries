@@ -9,14 +9,6 @@ sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
  
 def mine_topk_patricia(transactions, K):
-    before_build = time.perf_counter()
-    # tracemalloc.start() # MEM
-    
-    trie = pt.PatriciaTrie()
-
-    trie.insert(transactions)
-
-    after_build = time.perf_counter()
 
     if K == 0:
         return {
@@ -28,6 +20,15 @@ def mine_topk_patricia(transactions, K):
         "peak_memory_mb": "-",
         "tree_size_mb": "-",
     }
+
+    before_build = time.perf_counter()
+    # tracemalloc.start() # MEM
+    
+    trie = pt.PatriciaTrie()
+
+    trie.insert(transactions)
+
+    after_build = time.perf_counter()
 
     #list_size_bytes = asizeof.asizeof(transactions) # MEM
     #list_size_mb = list_size_bytes / (1024 * 1024) # MEM

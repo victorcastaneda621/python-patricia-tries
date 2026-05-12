@@ -31,6 +31,18 @@ def attempt_ppc_extensions(X, n, tree, order_to_item, item_to_order, sigma, Q):
         heapq.heappush(Q, (-supp_Y, Y, j, None))
  
 def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
+
+    if K == 0:
+        return {
+        "build_time": 0,
+        "mining_time": 0,
+        "itemsets": [],
+        "node_count": "-",
+        "max_depth": "-",
+        "peak_memory_mb": "-",
+        "tree_size_mb": "-",
+    }
+
     before_build = time.perf_counter()
     # tracemalloc.start() # MEM
 
@@ -49,17 +61,6 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
     order_to_item = list(item_to_order.keys())
 
     tree.insert(transactions)
-
-    if K == 0:
-        return {
-        "build_time": 0,
-        "mining_time": 0,
-        "itemsets": [],
-        "node_count": "-",
-        "max_depth": "-",
-        "peak_memory_mb": "-",
-        "tree_size_mb": "-",
-    }
 
     n = len(order_to_item)
 
@@ -96,13 +97,12 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
         returned.append(Y) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:
-            Y_sorted_list = list(Y)
             for j in range(i+1, n+1):
                 item_j = order_to_item[j - 1]
                 if item_j in Y:
                     continue
 
-                itemset = [item_j] + Y_sorted_list
+                itemset = [item_j] + [i for i in Y if item_to_order[i] < item_to_order[item_j]]
                 supp_X, ppc_ok, X = tree.get_support_ppc_and_closure(itemset, item_to_order)
 
                 if supp_X >= sigma and ppc_ok:

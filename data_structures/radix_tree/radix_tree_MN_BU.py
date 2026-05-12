@@ -209,121 +209,6 @@ class RadixTree_MN_BU(RadixTree):
     def print(self):
         self._print(self.root, 0, str(self.root.prefix))
 
-    def get_closure(self, itemset, order):
-        if not self.root:
-            return set(), 0
-        if not itemset:
-            # closure of empty set: items in every transaction
-            item_counts = {}
-            supp = self.root.count
-            self._count_items_downward(self.root, item_counts)
-            closure = {item for item, count in item_counts.items() if count == supp}
-            return closure, supp
-
-        target_item = itemset[0]  # least frequent (reverse sorted)
-        if target_item not in self.node_lists:
-            return set(), 0
-
-        itemset_set = set(itemset)
-        target_len = len(itemset_set)
-        extension_item = itemset[0]
-        item_counts = {}
-        total_support = 0
-
-        for node in self.node_lists[target_item]:
-            # walk up verifying all itemset items are on this path
-            current = node
-            found_count = 0
-            path_items = set()
-
-            while current is not None:
-                for p_item in current.prefix:
-                    path_items.add(p_item)
-                    if p_item in itemset_set:
-                        found_count += 1
-                if found_count == target_len:
-                    break
-                current = current.parent
-
-            if found_count != target_len:
-                continue  # this branch doesn't contain the full itemset
-
-            # ppc check: no item more frequent than extension_item
-            # on the path that isn't in the itemset
-            ppc_ok = True
-            for p_item in path_items:
-                if p_item not in itemset_set and order[p_item] < order[extension_item]:
-                    ppc_ok = False
-                    break
-
-            if not ppc_ok:
-                continue
-
-            # walk down from node collecting co-occurring items
-            node_item_counts = {}
-            self._count_items_downward(node, node_item_counts)
-            # also add path items above node (ancestors already verified)
-            ancestor = node.parent
-            while ancestor is not None:
-                for p_item in ancestor.prefix:
-                    node_item_counts[p_item] = node_item_counts.get(p_item, 0) + node.count
-                ancestor = ancestor.parent
-
-            for item, count in node_item_counts.items():
-                item_counts[item] = item_counts.get(item, 0) + count
-            total_support += node.count
-
-        if total_support == 0:
-            return set(), 0
-
-        closure = set(itemset)
-        for item, count in item_counts.items():
-            if count == total_support:
-                closure.add(item)
-        return closure, total_support
-
-    def _count_items_downward(self, node, item_counts):
-        for item in node.prefix:
-            item_counts[item] = item_counts.get(item, 0) + node.count
-        if node.node_type == 1:
-            self._count_items_downward(node.child, item_counts)
-        elif node.node_type == 2:
-            for child in node.children.values():
-                self._count_items_downward(child, item_counts)
-
-    def get_support_and_ppc_check(self, itemset, order):
-        if not itemset:
-            return self.root.count if self.root else 0, True
-        target_item = itemset[0]
-        if target_item not in self.node_lists:
-            return 0, True
-        itemset_set = set(itemset)
-        target_len = len(itemset_set)
-        extension_item = itemset[0]
-        total_support = 0
-
-        for node in self.node_lists[target_item]:
-            current = node
-            found_count = 0
-            path_items = set()
-            while current is not None:
-                for p_item in current.prefix:
-                    path_items.add(p_item)
-                    if p_item in itemset_set:
-                        found_count += 1
-                if found_count == target_len:
-                    break
-                current = current.parent
-            if found_count != target_len:
-                continue
-            # ppc check
-            for p_item in path_items:
-                if p_item not in itemset_set and order[p_item] < order[extension_item]:
-                    return 0, False
-            total_support += node.count
-
-        return total_support, True
-
     def get_support_ppc_and_closure(self, itemset, item_to_order):
         if not itemset: # Empty itemset
             if not self.root: return 0, True, set()
@@ -366,31 +251,26 @@ class RadixTree_MN_BU(RadixTree):
                 item_counts[p_item] = item_counts.get(p_item, 0) + node_supp
             
             # 3. accumulate downwards
+            stack = []
             if node.node_type == 1:
-                for child_item in node.child.prefix:
-                    item_counts[child_item] = item_counts.get(child_item, 0) + node.child.count
+                stack.append(node.child)
             elif node.node_type == 2:
-                stack = []
-                if node.node_type == 1:
-                    stack.append(node.child)
-                elif node.node_type == 2:
-                    stack.extend(list(node.children.values()))
+                stack.extend(node.children.values())
 
-                while stack:
-                    child = stack.pop()
-                    child_supp = child.count
-                    for child_item in child.prefix:
-                        item_counts[child_item] = item_counts.get(child_item, 0) + child_supp
-                    if child.node_type == 1:
-                        stack.append(child.child)
-                    elif child.node_type == 2:
-                        stack.extend(list(child.children.values()))
+            while stack:
+                child = stack.pop()
+                child_supp = child.count
+                for child_item in child.prefix:
+                    item_counts[child_item] = item_counts.get(child_item, 0) + child_supp
+                if child.node_type == 1:
+                    stack.append(child.child)
+                elif child.node_type == 2:
+                    stack.extend(child.children.values())
 
-        if total_support == 0:
-            return 0, True, set()
+                    if total_support == 0:
+                        return 0, True, set()
 
         # 4. ppc check and closure construction
-        # Prune only if an item not in itemset has smaller order AND is in the closure
         closure = set()
         for item, count in item_counts.items():
             if count == total_support:
