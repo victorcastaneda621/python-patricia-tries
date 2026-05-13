@@ -192,6 +192,9 @@ class RadixTree_MN_TD(RadixTree):
                                     extension_item, itemset_set, item_counts, order)
         if not ppc_ok or supp == 0:
             return 0, False, set()
+        for item, count in item_counts.items():
+            if count == supp and item not in itemset_set and self._compare_to(item, extension_item, order) == -1:
+                return 0, False, set()
         closure = set(itemset)
         for item, count in item_counts.items():
             if count == supp:
@@ -208,8 +211,6 @@ class RadixTree_MN_TD(RadixTree):
         pre_match_items = []
         for item in node.prefix:
             if j < 0:
-                if item not in itemset_set and self._compare_to(item, extension_item, order) == -1:
-                    return 0, False
                 pre_match_items.append(item)
             elif item == itemset[j]:
                 pre_match_items.append(item)
@@ -229,7 +230,6 @@ class RadixTree_MN_TD(RadixTree):
                     itemset, child, j, extension_item, itemset_set, item_counts, order)
                 if not child_ppc:
                     return 0, False
-                supp += child_supp
         else:
             supp = 0
             for child in self._get_children(node):
