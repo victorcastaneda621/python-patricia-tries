@@ -181,32 +181,29 @@ class RadixTree_MN_TD(RadixTree):
             return 0, False, set()
         if not itemset:
             item_counts = {}
-            self._traverse_all(self.root, item_counts)
+            supp = self._traverse([], self.root, -1, None, set(), item_counts, order)[0]
             supp = self.root.count
             closure = {item for item, count in item_counts.items() if count == supp}
             return supp, True, closure
+        
         extension_item = itemset[0]
-        itemset_set = set(itemset)
+        itemset_sorted = sorted(itemset, key=lambda x: order[x], reverse=True)
+        itemset_set = set(itemset_sorted)
+
         item_counts = {}
-        supp, ppc_ok = self._traverse(itemset, self.root, len(itemset) - 1,
+        supp, ppc_ok = self._traverse(itemset_sorted, self.root, len(itemset_sorted) - 1, 
                                     extension_item, itemset_set, item_counts, order)
+        
         if not ppc_ok or supp == 0:
             return 0, False, set()
+        
         for item, count in item_counts.items():
-            if count == supp and item not in itemset_set and self._compare_to(item, extension_item, order) == 1:
-                return 0, False, set()
-        closure = set(itemset)
-        for item, count in item_counts.items():
-            if count == supp:
-                closure.add(item)
+            if count == supp and item not in itemset_set:
+                if self._compare_to(item, extension_item, order) == -1:
+                    return 0, False, set()
+        closure = {item for item, count in item_counts.items() if count == supp}
         return supp, True, closure
     
-    def _traverse_all(self, node, item_counts):
-        for item in node.prefix:
-            item_counts[item] = item_counts.get(item, 0) + node.count
-        for child in self._get_children(node):
-            self._traverse_all(child, item_counts)
-
     def _traverse(self, itemset, node, j, extension_item, itemset_set, item_counts, order):
         pre_match_items = []
         for item in node.prefix:
@@ -224,23 +221,28 @@ class RadixTree_MN_TD(RadixTree):
             supp = node.count
             for item in pre_match_items:
                 item_counts[item] = item_counts.get(item, 0) + supp
-                
+
             for child in self._get_children(node):
                 child_supp, child_ppc = self._traverse(
                     itemset, child, j, extension_item, itemset_set, item_counts, order)
                 if not child_ppc:
                     return 0, False
+            return supp, True
         else:
-            supp = 0
+            total_supp = 0
             for child in self._get_children(node):
                 if self._compare_to(child.prefix[0], itemset[j], order) != 1:
                     child_supp, child_ppc = self._traverse(
                         itemset, child, j, extension_item, itemset_set, item_counts, order)
                     if not child_ppc:
                         return 0, False
-                    supp += child_supp
+                    total_supp += child_supp
+            
+            if total_supp > 0:
+                for item in pre_match_items:
+                    item_counts[item] = item_counts.get(item, 0) + total_supp
 
-        return supp, True
+            return total_supp, True
 
     def _get_children(self, node):
         if node.node_type == 0: return []
