@@ -134,11 +134,11 @@ class RadixTree_SN_TD(RadixTree):
         itemset_set = set(itemset)
         item_counts = {}
         supp, ppc_ok = self._traverse(itemset, self.root, len(itemset) - 1,
-                                    extension_item, itemset_set, item_counts, order, [])
+                                    extension_item, itemset_set, item_counts, order)
         if not ppc_ok or supp == 0:
             return 0, False, set()
         for item, count in item_counts.items():
-            if count == supp and item not in itemset_set and self._compare_to(item, extension_item, order) == -1:
+            if count == supp and item not in itemset_set and self._compare_to(item, extension_item, order) == 1:
                 return 0, False, set()
         closure = set(itemset)
         for item, count in item_counts.items():
@@ -152,27 +152,27 @@ class RadixTree_SN_TD(RadixTree):
         for child in node.children.values():
             self._traverse_all(child, item_counts)
 
-    def _traverse(self, itemset, node, j, extension_item, itemset_set, item_counts, order, path_items):
-        current_path_items = list(path_items)
+    def _traverse(self, itemset, node, j, extension_item, itemset_set, item_counts, order):
+        pre_match_items = []
         for item in node.prefix:
             if j < 0:
-                current_path_items.append(item)
+                pre_match_items.append(item)
             elif item == itemset[j]:
-                current_path_items.append(item)
+                pre_match_items.append(item)
                 j -= 1
             elif self._compare_to(item, itemset[j], order) == 1:
                 return 0, True
             else:
-                current_path_items.append(item)
+                pre_match_items.append(item)
 
         if j < 0:
             supp = node.count
-            for item in current_path_items:
+            for item in pre_match_items:
                 item_counts[item] = item_counts.get(item, 0) + supp
 
             for child in node.children.values():
-                _, child_ppc = self._traverse(
-                    itemset, child, j, extension_item, itemset_set, item_counts, order, [])
+                child_supp, child_ppc = self._traverse(
+                    itemset, child, j, extension_item, itemset_set, item_counts, order)
                 if not child_ppc:
                     return 0, False
         else:
@@ -180,7 +180,7 @@ class RadixTree_SN_TD(RadixTree):
             for child in node.children.values():
                 if self._compare_to(child.prefix[0], itemset[j], order) != 1:
                     child_supp, child_ppc = self._traverse(
-                        itemset, child, j, extension_item, itemset_set, item_counts, order, current_path_items)
+                        itemset, child, j, extension_item, itemset_set, item_counts, order)
                     if not child_ppc:
                         return 0, False
                     supp += child_supp
