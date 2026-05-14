@@ -18,19 +18,19 @@ case $SLURM_ARRAY_TASK_ID in
     4) ALG="patricia";    DATASET="mushroom"; K=50000; BENCH="" ;;
     5) ALG="list";        DATASET="mushroom"; K=50000; BENCH="" ;;
 
-    6) ALG="radix-SN-TD"; DATASET="connect4"; K=200000; BENCH="" ;;
-    7) ALG="radix-SN-BU"; DATASET="connect4"; K=200000; BENCH="" ;;
-    8) ALG="radix-MN-TD"; DATASET="connect4"; K=200000; BENCH="" ;;
-    9) ALG="radix-MN-BU"; DATASET="connect4"; K=200000; BENCH="" ;;
-    10) ALG="patricia";   DATASET="connect4"; K=200000; BENCH="" ;;
-    11) ALG="list";       DATASET="connect4"; K=200000; BENCH="" ;;
+    6) ALG="radix-SN-TD"; DATASET="connect4"; K=50000; BENCH="" ;;
+    7) ALG="radix-SN-BU"; DATASET="connect4"; K=50000; BENCH="" ;;
+    8) ALG="radix-MN-TD"; DATASET="connect4"; K=50000; BENCH="" ;;
+    9) ALG="radix-MN-BU"; DATASET="connect4"; K=50000; BENCH="" ;;
+    10) ALG="patricia";   DATASET="connect4"; K=50000; BENCH="" ;;
+    11) ALG="list";       DATASET="connect4"; K=50000; BENCH="" ;;
 
-    12) ALG="radix-SN-TD"; DATASET="pumsb"; K=100000; BENCH="" ;;
-    13) ALG="radix-SN-BU"; DATASET="pumsb"; K=100000; BENCH="" ;;
-    14) ALG="radix-MN-TD"; DATASET="pumsb"; K=100000; BENCH="" ;;
-    15) ALG="radix-MN-BU"; DATASET="pumsb"; K=100000; BENCH="" ;;
-    16) ALG="patricia";    DATASET="pumsb"; K=100000; BENCH="" ;;
-    17) ALG="list";        DATASET="pumsb"; K=100000; BENCH="" ;;
+    12) ALG="radix-SN-TD"; DATASET="pumsb"; K=35000; BENCH="" ;;
+    13) ALG="radix-SN-BU"; DATASET="pumsb"; K=35000; BENCH="" ;;
+    14) ALG="radix-MN-TD"; DATASET="pumsb"; K=35000; BENCH="" ;;
+    15) ALG="radix-MN-BU"; DATASET="pumsb"; K=35000; BENCH="" ;;
+    16) ALG="patricia";    DATASET="pumsb"; K=35000; BENCH="" ;;
+    17) ALG="list";        DATASET="pumsb"; K=35000; BENCH="" ;;
 
     18) ALG="radix-SN-TD"; DATASET="pumsb_star"; K=35000; BENCH="" ;;
     19) ALG="radix-SN-BU"; DATASET="pumsb_star"; K=35000; BENCH="" ;;
