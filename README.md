@@ -12,6 +12,11 @@ Two mining algorithms are implemented to test these structures:
 - **PatriciaMine**: Frequent itemset mining (finds all itemsets meeting a minimum support threshold).
 - **TopKMiner**: Frequent closed itemset mining (finds the top-K most frequent closed itemsets).
 
+## References
+
+- Pietracaprina, A., & Zandolin, D. (2003). *Mining Frequent Itemsets using Patricia Tries*. FIMI '03, Frequent Itemset Mining Implementations, ICDM 2003 Workshop, Melbourne, Florida. CEUR-WS.org. https://ceur-ws.org/Vol-90/pietracaprina.pdf
+- Pietracaprina, A., & Vandin, F. (2007). *Efficient Incremental Mining of Top-K Frequent Closed Itemsets*. Discovery Science, Springer Berlin Heidelberg, pp. 275–280.
+
 ## Project Structure
 
 ```
