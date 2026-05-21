@@ -176,25 +176,78 @@ class RadixTree_MN_TD(RadixTree):
     def count_nodes_and_max_depth(self):
         return self._count_nodes_and_max_depth(self.root)
     
-    def _count_nodes_and_max_depth(self, node):
-        # LeafNode
-        if node.node_type == 0:
-            return 1, 1
+    def get_support_ppc_and_closure(self, itemset, order):
+        if not self.root:
+            return 0, False, set()
+        if not itemset:
+            item_counts = {}
+            supp = self._traverse([], self.root, -1, None, set(), item_counts, order)[0]
+            supp = self.root.count
+            closure = {item for item, count in item_counts.items() if count == supp}
+            return supp, True, closure
         
-        # SingleChildNode
-        if node.node_type == 1:
-            child_count, child_depth = self._count_nodes_and_max_depth(node.child)
-            return 1 + child_count, 1 + child_depth
+        extension_item = itemset[0]
+        itemset_sorted = sorted(itemset, key=lambda x: order[x], reverse=True)
+        itemset_set = set(itemset_sorted)
+
+        item_counts = {}
+        supp, ppc_ok = self._traverse(itemset_sorted, self.root, len(itemset_sorted) - 1, 
+                                    extension_item, itemset_set, item_counts, order)
         
-        # MultiChildNode
-        total_nodes = 1
-        max_sub_depth = 1
-        for child in node.children.values():
-            c_count, c_depth = self._count_nodes_and_max_depth(child)
-            total_nodes += c_count
-            max_sub_depth = max(max_sub_depth, c_depth)
+        if not ppc_ok or supp == 0:
+            return 0, False, set()
         
-        return total_nodes, max_sub_depth
+        for item, count in item_counts.items():
+            if count == supp and item not in itemset_set:
+                if self._compare_to(item, extension_item, order) == -1:
+                    return 0, False, set()
+        closure = {item for item, count in item_counts.items() if count == supp}
+        return supp, True, closure
+    
+    def _traverse(self, itemset, node, j, extension_item, itemset_set, item_counts, order):
+        pre_match_items = []
+        for item in node.prefix:
+            if j < 0:
+                pre_match_items.append(item)
+            elif item == itemset[j]:
+                pre_match_items.append(item)
+                j -= 1
+            elif self._compare_to(item, itemset[j], order) == 1:
+                return 0, True
+            else:
+                pre_match_items.append(item)
+
+        if j < 0:
+            supp = node.count
+            for item in pre_match_items:
+                item_counts[item] = item_counts.get(item, 0) + supp
+
+            for child in self._get_children(node):
+                child_supp, child_ppc = self._traverse(
+                    itemset, child, j, extension_item, itemset_set, item_counts, order)
+                if not child_ppc:
+                    return 0, False
+            return supp, True
+        else:
+            total_supp = 0
+            for child in self._get_children(node):
+                if self._compare_to(child.prefix[0], itemset[j], order) != 1:
+                    child_supp, child_ppc = self._traverse(
+                        itemset, child, j, extension_item, itemset_set, item_counts, order)
+                    if not child_ppc:
+                        return 0, False
+                    total_supp += child_supp
+            
+            if total_supp > 0:
+                for item in pre_match_items:
+                    item_counts[item] = item_counts.get(item, 0) + total_supp
+
+            return total_supp, True
+
+    def _get_children(self, node):
+        if node.node_type == 0: return []
+        if node.node_type == 1: return [node.child]
+        return node.children.values()
 
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 #

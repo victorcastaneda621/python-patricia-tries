@@ -132,3 +132,75 @@ class RadixTree_SN_BU(RadixTree):
         
     def print(self):
         self._print(self.root, 0, str(self.root.prefix))
+
+    def _count_items_downward(self, node, item_counts):
+        for item in node.prefix:
+            item_counts[item] = item_counts.get(item, 0) + node.count
+        for child in node.children.values():
+            self._count_items_downward(child, item_counts)
+
+    def get_support_ppc_and_closure(self, itemset, item_to_order):
+        if not itemset: # Empty itemset
+            if not self.root: return 0, True, set()
+            closure = [item for item in item_to_order
+               if sum(node.count for node in self.node_lists.get(item, [])) == self.root.count]
+            return self.root.count, True, closure
+
+        extension_item = itemset[0]
+        target_nodes = self.node_lists.get(extension_item)
+        if not target_nodes:
+            return 0, True, set()
+            
+        itemset_set = set(itemset)
+        target_len = len(itemset_set)
+        item_counts = {}
+        total_support = 0
+        ord_ext = item_to_order[extension_item]
+
+        for node in target_nodes:
+            # 1. Check path contains all items in the itemsets
+            path_items = []
+            current = node
+            found_count = 0
+            while current:
+                p_prefix = current.prefix
+                for p_item in p_prefix:
+                    path_items.append(p_item)
+                    if p_item in itemset_set:
+                        found_count += 1
+                current = current.parent
+            
+            if found_count < target_len:
+                continue
+                
+            node_supp = node.count
+            total_support += node_supp
+            
+            # 2. accumulate upwards
+            for p_item in path_items:
+                item_counts[p_item] = item_counts.get(p_item, 0) + node_supp
+            
+            # 3. accumulate downwards
+            if node.children:
+                stack = list(node.children.values())
+                while stack:
+                    child = stack.pop()
+                    c_supp = child.count
+                    for c_item in child.prefix:
+                        item_counts[c_item] = item_counts.get(c_item, 0) + c_supp
+                    if child.children:
+                        stack.extend(child.children.values())
+
+        if total_support == 0:
+            return 0, True, set()
+
+        # 4. ppc check and closure construction
+        # Prune only if an item not in itemset has smaller order AND is in the closure
+        closure = set()
+        for item, count in item_counts.items():
+            if count == total_support:
+                if item not in itemset_set and item_to_order[item] < ord_ext:
+                    return 0, False, set()
+                closure.add(item)
+                
+        return total_support, True, closure

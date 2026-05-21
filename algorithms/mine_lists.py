@@ -1,5 +1,5 @@
 from collections import Counter
-import time
+from general_utils import prune_dataset
 
 def select(D, X):
         out = []
@@ -9,9 +9,9 @@ def select(D, X):
                 out.append(tran)
         return out
 
-def mine_lists(transactions, min_supp):
+def mine_lists(transactions, min_supp, benchmark=False):
 
-    Dprime = transactions
+    transactions = prune_dataset(transactions, min_supp)
 
     count = Counter()
     for t in transactions:
@@ -31,14 +31,15 @@ def mine_lists(transactions, min_supp):
             else:
                 X[h] = IL[l]
                 h += 1
-                #print("Generate","".join(X[:h]),X)
-                returned.append(X[:h])
+
+                if not benchmark:
+                    returned.append(X[:h])
 
                 if l:
-                    DX = select(Dprime,X[:h])
+                    DX = select(transactions,X[:h])
                 for i in range(l-1,-1,-1):
                     count[IL[i]] = sum([1 for elem in DX if IL[i] in elem])
                 l=0
 
-    return returned
+    return {"itemsets": returned}
 

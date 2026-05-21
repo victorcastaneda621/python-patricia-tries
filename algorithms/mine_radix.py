@@ -1,11 +1,10 @@
-import time
 from data_structures import radix_tree_SN_TD, radix_tree_SN_BU, radix_tree_MN_TD, radix_tree_MN_BU
 from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
-import tracemalloc
-import sys
-import os
+from general_utils import prune_dataset
 
-def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
+def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark=False):
+
+    transactions = prune_dataset(transactions, min_supp)
 
     if single_node:
         if top_down:
@@ -18,7 +17,6 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
         else:
             tree = radix_tree_MN_BU.RadixTree_MN_BU()
 
-    # Inserts the transactions and returns the counts of items
     transactions, count, order = radix_tree_count_sort(transactions)
     tree.insert(transactions)
 
@@ -37,11 +35,11 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool):
             else:
                 X[h] = IL[l]
                 h += 1
-                #print("Generate","".join(X[:h]),X)
-                returned.append(X[:h])
+                if not benchmark:
+                    returned.append(X[:h])
 
                 for i in range(l-1,-1,-1):
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
 
-    return returned
+    return {"itemsets": returned}

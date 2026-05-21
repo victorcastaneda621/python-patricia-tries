@@ -209,12 +209,31 @@ class PatriciaTrie():
             left_count = self._count_nodes_and_max_depth(node.left_child)
             right_count = self._count_nodes_and_max_depth(node.right_child)
             return (1 + left_count[0] + right_count[0], 1 + max(left_count[1], right_count[1]))
+        
+    def get_support_and_closure_bits(self, bit_seq):
+        return self._get_support_and_closure_bits_at_node(self.root, bit_seq)
+
+    def _get_support_and_closure_bits_at_node(self, node, bit_seq):
+        if (node.subtrie_or_mask & bit_seq) != bit_seq:
+            return 0, 0
+        
+        if isinstance(node, LeafNode):
+            return node.value, node.key
+            
+        if not is_bit_i_of_seq_zero(bit_seq, node.skip):
+            return self._get_support_and_closure_bits_at_node(node.right_child, bit_seq)
+        else:
+            l_supp, l_bits = self._get_support_and_closure_bits_at_node(node.left_child, bit_seq)
+            r_supp, r_bits = self._get_support_and_closure_bits_at_node(node.right_child, bit_seq)
+            
+            total_supp = l_supp + r_supp
+            if l_supp == 0: return r_supp, r_bits
+            if r_supp == 0: return l_supp, l_bits
+            
+            return total_supp, (l_bits & r_bits)
 
 ## PatriciaTrie ############################################################
-# example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}] 
-# t = PatriciaTrie()
-# t.insert(example)
-# t.print()
+# example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 # has supports [Atenas:1, Roma:2, Oslo:3], so it becomes [0b111, 0b011, 0b001]. 
 # The trie is:
 # Sequence counts:  [7, 3, 1]

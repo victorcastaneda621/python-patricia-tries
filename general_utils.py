@@ -1,5 +1,6 @@
 import os, csv
 from collections import Counter
+from itertools import chain
 
 def row_to_transaction(row):
     """Turns a row of data from a table into a transaction.
@@ -53,10 +54,18 @@ def write_results(itemsets: list, args):
 
     args
         Namespace returned by Argparse. Used to customize the file name:
-        f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
+        f"files/results/{args.alg}_{args.data}_{args.minsup|arhs.k}.txt"
 
     """
-    filename = f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
+    if getattr(args, "minsup", None):
+        filename = f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
+    else:
+        filename = f"files/results/{args.alg}_{args.data}_{args.k}.txt"
     with open(filename, "w") as f:
         for itemset in itemsets:
             f.write(",".join(itemset) + "\n")
+
+def prune_dataset(transaction_list, min_sup):
+    support = Counter(chain.from_iterable(transaction_list))
+    support_filtered = {item for item, count in support.items() if count >= min_sup}
+    return [support_filtered.intersection(t) for t in transaction_list]
