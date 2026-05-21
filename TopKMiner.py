@@ -82,12 +82,6 @@ def run_experiment(args):
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     if not args.benchmark:
         write_results(results["itemsets"], args) # Write mined itemsets to .txt
-    print(
-        "Build time: " + str(results["build_time"]) + " s" +
-        "\nMining time: " + str(results["mining_time"]) + " s" +
-        "\nTotal time: " + str(results["build_time"] + results["mining_time"]) + " s" +
-        "\nNumber of frequent closed itemsets: " + str(len(results["itemsets"]))
-        )
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Closed Frequent Itemset Mining")

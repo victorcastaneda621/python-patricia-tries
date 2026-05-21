@@ -39,11 +39,11 @@ class InternalNode(Node):
         self.right_child = right_child
         
 class LeafNode(Node):
-    __slots__ = ['key', 'count']
-    def __init__(self, key: int, count):
-        super().__init__(count, key)
+    __slots__ = ['key', 'value']
+    def __init__(self, key: int, value):
+        super().__init__(value, key)
         self.key = key
-        self.count = count # Amount of transactions equal to this one
+        self.value = value # Amount of transactions equal to this one
 
 ## PATRICIA TRIE ##############################################################
 class PatriciaTrie():
@@ -76,7 +76,7 @@ class PatriciaTrie():
         # If the key was in the trie, we found the corresponding node; 
         # otherwise it was not
         if n.key == key:
-            return n.count
+            return n.value
         else:
             return None
         
@@ -147,7 +147,7 @@ class PatriciaTrie():
                     else:
                         current = current.right_child
 
-                n.count += 1
+                n.value += 1
                 n.subtrie_leaf_count += 1
         return support
         
@@ -155,7 +155,7 @@ class PatriciaTrie():
         indentation = "    " * i
         if isinstance(n, LeafNode):
             print(indentation + pos + "├── (" + str(self.seq_to_transaction(n.key)) + " --> key: " + 
-                  str(n.key) + ", support: " + str(n.count) + ")")
+                  str(n.key) + ", support: " + str(n.value) + ")")
         else:
             print(indentation + pos + "├──" + "(skip: " + str(n.skip) + ")")
             self._print(n.left_child, i+1, "L")
@@ -183,7 +183,7 @@ class PatriciaTrie():
             # as the bit_seq
             if isinstance(node, LeafNode): 
                 # We arrived at a key that contains 1s in every required position
-                return node.count
+                return node.value
             else: 
                 # we continue exploring children
                 if not is_bit_i_of_seq_zero(bit_seq, node.skip):
