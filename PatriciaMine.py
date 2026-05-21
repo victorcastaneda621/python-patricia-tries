@@ -23,7 +23,7 @@ DATASETS = [
     "artificial_1",
 ]
 
-METRICS_FILE = "files/cats_mem.csv"
+METRICS_FILE = "files/metrics_patricia_mine.csv"
 
 def load_local_dataset(path):
     transactions = []
@@ -79,7 +79,7 @@ def run_experiment(args):
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     if not args.benchmark:
-        write_results(results["itemsets"], args) # Write mined itemsets to .txt
+        write_results(results["itemsets"], args, "PatriciaMine") # Write mined itemsets to .txt
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Frequent Itemset Mining")

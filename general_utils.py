@@ -44,7 +44,7 @@ def write_metrics(metrics: dict, file: str):
 
         writer.writerow(metrics)
 
-def write_results(itemsets: list, args):
+def write_results(itemsets: list, args, caller):
     """Writes the resulting itemsets from a mining operation to a text file.
 
     Parameters
@@ -57,10 +57,10 @@ def write_results(itemsets: list, args):
         f"files/results/{args.alg}_{args.data}_{args.minsup|arhs.k}.txt"
 
     """
-    if getattr(args, "minsup", None):
-        filename = f"files/results/{args.alg}_{args.data}_{args.minsup}.txt"
+    if caller == "PatriciaMine":
+        filename = f"files/results/PM_{args.alg}_{args.data}_{args.minsup}.txt"
     else:
-        filename = f"files/results/{args.alg}_{args.data}_{args.k}.txt"
+        filename = f"files/results/TK_{args.alg}_{args.data}_{args.k}.txt"
     with open(filename, "w") as f:
         for itemset in itemsets:
             f.write(",".join(itemset) + "\n")

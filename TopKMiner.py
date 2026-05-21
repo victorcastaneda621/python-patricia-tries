@@ -81,7 +81,7 @@ def run_experiment(args):
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     if not args.benchmark:
-        write_results(results["itemsets"], args) # Write mined itemsets to .txt
+        write_results(results["itemsets"], args, "TopKMiner") # Write mined itemsets to .txt
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Closed Frequent Itemset Mining")
