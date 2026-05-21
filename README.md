@@ -73,12 +73,12 @@ Results are written to the `files/` directory (created automatically):
 - 
 ## Examples
 
-Mine frequent itemsets from the mushroom dataset using a Patricia trie (mined itemsets ouputted to `PM_patricia_mushroom_8000.txt`):
+Mine frequent itemsets from the mushroom dataset using a Patricia trie (mined itemsets outputted to `PM_patricia_mushroom_8000.txt`):
 ```bash
 python PatriciaMine.py --alg patricia --data mushroom --minsup 8000
 ```
 
-Mine frequent itemsets from the mushroom dataset using the list baseline (mined itemsets ouputted to `PM_list_mushroom_8000.txt`):
+Mine frequent itemsets from the mushroom dataset using the list baseline (mined itemsets outputted to `PM_list_mushroom_8000.txt`):
 ```bash
 python PatriciaMine.py --alg list --data mushroom --minsup 8000
 ```
@@ -88,7 +88,7 @@ Mine frequent itemsets from the connect4 dataset using a radix trie (SN_BU varia
 python PatriciaMine.py --alg radix-SN-BU --data connect4 --minsup 1000 --benchmark
 ```
 
-Mine the top 50 frequent closed itemsets from pumsb using the MN_BU radix variant (mined itemsets ouputted to `PM_radix-MN-BU_mushroom_8000.txt`):
+Mine the top 50 frequent closed itemsets from pumsb using the MN_BU radix variant (mined itemsets outputted to `PM_radix-MN-BU_mushroom_8000.txt`):
 ```bash
 python TopKMiner.py --alg radix-MN-BU --data pumsb --k 50
 ```
