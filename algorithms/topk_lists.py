@@ -47,7 +47,7 @@ def attempt_ppc_extensions(X, n, item_to_idx, item_order, D, sigma, Q):
         # core_i(X) = prefix of X until position j-1
         heapq.heappush(Q, (-supp_Y, D_Y, j, Y_prefix))
  
-def mine_topk_lists(transactions, K):
+def mine_topk_lists(transactions, K, benchmark=False):
 
     if K == 0:
         return {
@@ -73,9 +73,9 @@ def mine_topk_lists(transactions, K):
 
     after_build = time.perf_counter()
 
-    #list_size_bytes = asizeof.asizeof(transactions) # MEM
-    #list_size_mb = list_size_bytes / (1024 * 1024) # MEM
-    #print("tree_size_mb:" + str(list_size_mb)) # MEM
+    list_size_bytes = asizeof.asizeof(transactions) # MEM
+    list_size_mb = list_size_bytes / (1024 * 1024) # MEM
+    print("tree_size_mb:" + str(list_size_mb)) # MEM
 
     sigma = 0 # Current lower bound for sigma_K,
     # sigma_K is the minsup that yields K itemsets, we don't know it
@@ -110,7 +110,8 @@ def mine_topk_lists(transactions, K):
             continue
         Y, _ = closure(D_Y)
         
-        returned.append(Y) # We need to return the new itemset in FC (Y)
+        if not benchmark:
+            returned.append(Y) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:
             for j in range(i+1, n+1):
@@ -139,9 +140,9 @@ def mine_topk_lists(transactions, K):
                             supp = Q[0][0]
 
     after_mining = time.perf_counter()
-    #_, peak = tracemalloc.get_traced_memory() # MEM
-    #peak_memory_mb = peak / (1024 * 1024) # MEM
-    #tracemalloc.stop() # MEM
+    _, peak = tracemalloc.get_traced_memory() # MEM
+    peak_memory_mb = peak / (1024 * 1024) # MEM
+    tracemalloc.stop() # MEM
  
     return {
         "build_time": after_build - before_build,
@@ -149,7 +150,7 @@ def mine_topk_lists(transactions, K):
         "itemsets": returned,
         "node_count": "-",
         "max_depth": "-",
-        "peak_memory_mb": "-",
-        "tree_size_mb": "-",
+        "peak_memory_mb": peak_memory_mb,
+        "tree_size_mb": list_size_mb,
         "sigma": sigma
     }

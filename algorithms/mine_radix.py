@@ -9,7 +9,7 @@ import os, gc
 sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
 
-def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark: False):
+def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark= False):
     before_trie_build = time.perf_counter()
 
     transactions = prune_dataset(transactions, min_supp)

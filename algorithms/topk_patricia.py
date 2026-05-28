@@ -8,7 +8,7 @@ import data_structures.patricia_trie.patricia_trie as pt
 sys.path.append(os.path.expanduser("~/.local/lib/python3.6/site-packages"))
 from pympler import asizeof
  
-def mine_topk_patricia(transactions, K):
+def mine_topk_patricia(transactions, K, benchmark=False):
 
     if K == 0:
         return {
@@ -30,9 +30,9 @@ def mine_topk_patricia(transactions, K):
 
     after_build = time.perf_counter()
 
-    #list_size_bytes = asizeof.asizeof(transactions) # MEM
-    #list_size_mb = list_size_bytes / (1024 * 1024) # MEM
-    #print("tree_size_mb:" + str(list_size_mb)) # MEM
+    list_size_bytes = asizeof.asizeof(transactions) # MEM
+    list_size_mb = list_size_bytes / (1024 * 1024) # MEM
+    print("tree_size_mb:" + str(list_size_mb)) # MEM
 
     sigma = 0 # Current lower bound for sigma_K,
     # sigma_K is the minsup that yields K itemsets, we don't know it
@@ -68,7 +68,8 @@ def mine_topk_patricia(transactions, K):
         if extracted == K: 
             # If we have extracted enough items, we found the real minsup
             sigma_prime = supp_Y
-        returned.append(trie.seq_to_transaction(Y_bits)) # We need to return the new itemset in FC (Y)
+        if not benchmark:
+            returned.append(trie.seq_to_transaction(Y_bits)) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:
             for j in range(i+1, len(trie.index_to_item)+1):
@@ -96,9 +97,9 @@ def mine_topk_patricia(transactions, K):
                             supp = Q[0][0]
 
     after_mining = time.perf_counter()
-    #_, peak = tracemalloc.get_traced_memory() # MEM
-    #peak_memory_mb = peak / (1024 * 1024) # MEM
-    #tracemalloc.stop() # MEM
+    _, peak = tracemalloc.get_traced_memory() # MEM
+    peak_memory_mb = peak / (1024 * 1024) # MEM
+    tracemalloc.stop() # MEM
  
     return {
         "build_time": after_build - before_build,
@@ -106,7 +107,7 @@ def mine_topk_patricia(transactions, K):
         "itemsets": returned,
         "node_count": "-",
         "max_depth": "-",
-        "peak_memory_mb": "-",
-        "tree_size_mb": "-",
+        "peak_memory_mb": peak_memory_mb,
+        "tree_size_mb": list_size_mb,
         "sigma": sigma
     }

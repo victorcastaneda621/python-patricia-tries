@@ -8,10 +8,10 @@ from algorithms.topk_radix import mine_topk_radix
 ALGORITHMS = {
     "patricia": mine_topk_patricia,
     "list": mine_topk_lists,
-    "radix-SN-BU": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=False),
-    "radix-SN-TD": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=True),
-    "radix-MN-BU": lambda t, m: mine_topk_radix(t, m, single_node=False, top_down=False),
-    "radix-MN-TD": lambda t, m: mine_topk_radix(t, m, single_node=False, top_down=True)
+    "radix-SN-BU": lambda t, m, b: mine_topk_radix(t, m, single_node=True, top_down=False, benchmark=b),
+    "radix-SN-TD": lambda t, m, b: mine_topk_radix(t, m, single_node=True, top_down=True, benchmark=b),
+    "radix-MN-BU": lambda t, m, b: mine_topk_radix(t, m, single_node=False, top_down=False, benchmark=b),
+    "radix-MN-TD": lambda t, m, b: mine_topk_radix(t, m, single_node=False, top_down=True, benchmark=b)
 }
 
 DATASETS = [
@@ -23,7 +23,7 @@ DATASETS = [
     "artificial_1",
 ]
 
-METRICS_FILE = "files/metrics_topk.csv"
+METRICS_FILE = "files/mem_metrics_topk.csv"
 
 def load_local_dataset(path):
     transactions = []
@@ -58,7 +58,7 @@ def run_experiment(args):
     transactions = load_dataset(args.data)
     algorithm = ALGORITHMS[args.alg]
 
-    results = algorithm(transactions, args.k) # Call the chosen miner
+    results = algorithm(transactions, args.k, args.benchmark) # Call the chosen miner
 
     metrics = {
         "algorithm": getattr(args, "alg", "-"),
