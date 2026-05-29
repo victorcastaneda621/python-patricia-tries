@@ -22,7 +22,6 @@ def mine_topk_patricia(transactions, K, benchmark=False):
     }
 
     before_build = time.perf_counter()
-    # tracemalloc.start() # MEM
     
     trie = pt.PatriciaTrie()
 
@@ -30,7 +29,7 @@ def mine_topk_patricia(transactions, K, benchmark=False):
 
     after_build = time.perf_counter()
 
-    list_size_bytes = asizeof.asizeof(transactions) # MEM
+    list_size_bytes = asizeof.asizeof(trie) # MEM
     list_size_mb = list_size_bytes / (1024 * 1024) # MEM
     print("tree_size_mb:" + str(list_size_mb)) # MEM
 
@@ -41,6 +40,7 @@ def mine_topk_patricia(transactions, K, benchmark=False):
     Q = [] # priority queue, we use negated support to order correctly
     extracted = 0
     returned = []
+    tracemalloc.start() # MEM
 
     supp_root, root_bits = trie._get_support_and_closure_bits_at_node(trie.root, 0)
 

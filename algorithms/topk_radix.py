@@ -44,7 +44,6 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool, benchmar
     }
 
     before_build = time.perf_counter()
-    # tracemalloc.start() # MEM
 
     if single_node:
         if top_down:
@@ -66,7 +65,7 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool, benchmar
 
     after_build = time.perf_counter()
 
-    list_size_bytes = asizeof.asizeof(transactions) # MEM
+    list_size_bytes = asizeof.asizeof(tree) # MEM
     list_size_mb = list_size_bytes / (1024 * 1024) # MEM
     print("tree_size_mb:" + str(list_size_mb)) # MEM
 
@@ -77,6 +76,7 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool, benchmar
     Q = [] # priority queue, we use negated support to order correctly
     extracted = 0
     returned = []
+    tracemalloc.start() # MEM
 
     _, _, current_closure = tree.get_support_ppc_and_closure([], item_to_order)
     if current_closure: # i.e. it is not empty

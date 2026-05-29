@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=4096        
 #SBATCH -n 1                      
 #SBATCH -c 1
-#SBATCH --array=0-29
+#SBATCH --array=0-59
 
 mkdir -p logs
 
@@ -85,6 +85,6 @@ esac
 
 echo "Starting: ID=$SLURM_ARRAY_TASK_ID | Algorithm=$ALG | Dataset=$DATASET | K=$K | " $BENCH
 
-python3 TopKMiner.py --alg "$ALG" --data "$DATASET" --k "$K" $BENCH
+timeout 600000 python3 TopKMiner.py --alg "$ALG" --data "$DATASET" --k "$K" $BENCH
 
 echo "Finished"

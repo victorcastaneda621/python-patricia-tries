@@ -61,7 +61,6 @@ def mine_topk_lists(transactions, K, benchmark=False):
     }
 
     before_build = time.perf_counter()
-    # tracemalloc.start() # MEM
 
     count = Counter()
     for t in transactions:
@@ -84,10 +83,12 @@ def mine_topk_lists(transactions, K, benchmark=False):
     Q = [] # priority queue, we use negated support to order correctly
     extracted = 0
     returned = []
+    tracemalloc.start() # MEM
 
     current_closure, _ = closure(transactions)
     if current_closure: # i.e. it is not empty
-        returned.append(current_closure)
+        if not benchmark:
+            returned.append(current_closure)
         extracted += 1
         if K == 1:
             sigma_prime = len(transactions)

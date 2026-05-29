@@ -1,4 +1,4 @@
-import argparse, os
+import argparse, os, signal, sys, tracemalloc
 
 from general_utils import write_metrics, write_results
 from algorithms.topk_patricia import mine_topk_patricia
@@ -24,6 +24,12 @@ DATASETS = [
 ]
 
 METRICS_FILE = "files/mem_metrics_topk.csv"
+
+def handle_timeout(sig, frame):
+    _, peak = tracemalloc.get_traced_memory()
+    print(f"\n--- LIMIT REACHED")
+    print(f"Peak memory so far: {peak / (1024 * 1024):.2f} MB")
+    sys.exit(0)
 
 def load_local_dataset(path):
     transactions = []
@@ -55,6 +61,7 @@ def load_dataset(name):
     return transactions
 
 def run_experiment(args):
+    signal.signal(signal.SIGTERM, handle_timeout)
     transactions = load_dataset(args.data)
     algorithm = ALGORITHMS[args.alg]
 
