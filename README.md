@@ -2,15 +2,15 @@
 
 A Python implementation of two trie-based data structures (a trie is a prefix tree where each node contains one element from the prefix):
 
-- **Radix trie**: Compressed trie, where strings of nodes with only one child are merged into a single node, storing a subsequence of the prefix in said node. Four variants were implemented (SN_TD, SN_BU, MN_TD, MN_BU):
+- **Radix trie**. Compressed trie, where strings of nodes with only one child are merged into a single node, storing a subsequence of the prefix in said node. Four variants were implemented (SN_TD, SN_BU, MN_TD, MN_BU):
   - `SN` (Single Node): all nodes share a single type. `MN` (Multi Node): leaf and internal nodes are distinct.
   - `TD` (Top-Down): support is calculated via top-down traversal. `BU` (Bottom-Up): support is calculated via bottom-up traversal.
-- **Patricia trie**: Compressed binary trie, where prefixes are turned into their characteristic functions, and those are stored. Thus, bitwise operations can be used in place of set/list operations.
+- **Patricia trie**. Compressed binary trie, where prefixes are turned into their characteristic functions, and those are stored. Thus, bitwise operations can be used in place of set/list operations.
 
 Two mining algorithms are implemented to test these structures:
 
-- **PatriciaMine**: Frequent itemset mining (finds all itemsets meeting a minimum support threshold).
-- **TopKMiner**: Frequent closed itemset mining (finds the top-K most frequent closed itemsets).
+- **PatriciaMine**. Frequent itemset mining (finds all itemsets meeting a minimum support threshold).
+- **TopKMiner**. Frequent closed itemset mining (finds the top-K most frequent closed itemsets).
 
 ## References
 
@@ -46,19 +46,19 @@ No external libraries required (only Python standard libraries (`argparse`, `os`
 ```bash
 python PatriciaMine.py --alg <algorithm> --data <dataset> --minsup <int> [--benchmark]
 ```
-- `--alg` — which structure to use for mining
-- `--data` — which dataset to load
-- `--minsup` — minimum support threshold for an itemset to be considered frequent
-- `--benchmark` — (optional) skips writing itemsets to a file, saving time
+- `--alg`: which structure to use for mining
+- `--data`: which dataset to load
+- `--minsup`: minimum support threshold for an itemset to be considered frequent
+- `--benchmark` (optional): skips writing itemsets to a file, saving time
 
 **TopKMiner**
 ```bash
 python TopKMiner.py --alg <algorithm> --data <dataset> --k <int> [--benchmark]
 ```
-- `--alg` — which structure to use for mining
-- `--data` — which dataset to load
-- `--k` — number of frequent closed itemsets to mine
-- `--benchmark` — (optional) skips writing itemsets to a file, saving time
+- `--alg`: which structure to use for mining
+- `--data`: which dataset to load
+- `--k`: number of frequent closed itemsets to mine
+- `--benchmark` (optional): skips writing itemsets to a file, saving time
 
 **Available options for both (extendable by adding new options to the callers):**
 
@@ -75,12 +75,12 @@ Results are written to the `files/` directory (created automatically):
 - 
 ## Examples
 
-Mine frequent itemsets from the mushroom dataset using a Patricia trie (mined itemsets ouputted to `PM_patricia_mushroom_8000.txt`):
+Mine frequent itemsets from the mushroom dataset using a Patricia trie (mined itemsets outputted to `PM_patricia_mushroom_8000.txt`):
 ```bash
 python PatriciaMine.py --alg patricia --data mushroom --minsup 8000
 ```
 
-Mine frequent itemsets from the mushroom dataset using the list baseline (mined itemsets ouputted to `PM_list_mushroom_8000.txt`):
+Mine frequent itemsets from the mushroom dataset using the list baseline (mined itemsets outputted to `PM_list_mushroom_8000.txt`):
 ```bash
 python PatriciaMine.py --alg list --data mushroom --minsup 8000
 ```
