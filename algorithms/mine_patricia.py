@@ -35,4 +35,11 @@ def mine_patricia(transactions, min_supp, benchmark=False):
                     count[IL[i]] = trie.get_support_of_itemset_as_bit_seq((1 << i) | X_as_bit_seq)
                 l=0
 
-    return {"itemsets": returned}
+    return {"build_time": "-",
+            "mining_time": "-",
+            "itemsets": returned,
+            "node_count": "-",
+            "max_depth": "-",
+            "peak_memory_mb": "-",
+            "tree_size_mb":"-"
+            }

@@ -13,14 +13,13 @@ def first_difference(seq1, seq2):
         if xor == 0:
             return None # There will be no differences
         
-        """i = 0
+        i = 0
         while xor > 0:
             if xor & 1 == 1: # Then XOR returned 1 for the first time at i 
                 return i
             xor = xor >> 1 # Shift to the right (0b1011 >> 1 = 0b(0)101)
             i += 1
-        return None"""
-        return (xor & -xor).bit_length() - 1
+        return None
 
 ## NODE TYPES #################################################################
 
@@ -71,7 +70,7 @@ class PatriciaTrie():
                 n = n.right_child
         return n # If the key was not in the trie, we still return some node
 
-    def get_count_from_bits(self, key: int):
+    def get_value_from_bits(self, key: int):
         n = self._get_item_node(key)
         # If the key was in the trie, we found the corresponding node; 
         # otherwise it was not
@@ -80,9 +79,9 @@ class PatriciaTrie():
         else:
             return None
         
-    def get_count_from_transaction(self, transaction: set):
+    def get_value_from_transaction(self, transaction: set):
         bit_seq = tbs.transaction_to_bit_sequence(transaction, self.item_to_index)
-        return self.get_count_from_bits(bit_seq)
+        return self.get_value_from_bits(bit_seq)
     
     def insert(self, keys: list):
         # If we dont have an order (first insertion), we must obtain it
@@ -236,9 +235,9 @@ class PatriciaTrie():
 # example = [{"Atenas", "Oslo", "Roma"}, {"Atenas", "Oslo"}, {"Oslo"}]
 # has supports [Atenas:1, Roma:2, Oslo:3], so it becomes [0b111, 0b011, 0b001]. 
 # The trie is:
-# Sequence counts:  [7, 3, 1]
+# Sequence values:  [7, 3, 1]
 #·├──(skip: 1)
-#    L├──1 (key: t3)
+#    L├──1 (value: t3)
 #    R├──(skip: 2)
-#        L├──3 (key: t2)
-#        R├──7 (key: t1)
+#        L├──3 (value: t2)
+#        R├──7 (value: t1)

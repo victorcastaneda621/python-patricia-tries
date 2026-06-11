@@ -34,6 +34,8 @@ Two mining algorithms are implemented to test these structures:
 └── datasets/                # Raw .dat transaction files (mushroom, connect4, pumsb, etc.)
 ```
 
+*Note:* If you wish to measure build time, mining time, or memory usage, it is possible to use the code in the `mem-benchmark` branch of this project.
+
 ## Dependencies
 
 No external libraries required (only Python standard libraries (`argparse`, `os`, `csv`) are used).
@@ -88,7 +90,7 @@ Mine frequent itemsets from the connect4 dataset using a radix trie (SN_BU varia
 python PatriciaMine.py --alg radix-SN-BU --data connect4 --minsup 1000 --benchmark
 ```
 
-Mine the top 50 frequent closed itemsets from pumsb using the MN_BU radix variant (mined itemsets ouputted to `PM_radix-MN-BU_mushroom_8000.txt`):
+Mine the top 50 frequent closed itemsets from pumsb using the MN_BU radix variant (mined itemsets ouputted to `KM_radix-MN-BU_mushroom_8000.txt`):
 ```bash
 python TopKMiner.py --alg radix-MN-BU --data pumsb --k 50
 ```

@@ -8,10 +8,10 @@ from algorithms.topk_radix import mine_topk_radix
 ALGORITHMS = {
     "patricia": mine_topk_patricia,
     "list": mine_topk_lists,
-    "radix-SN-BU": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=False),
-    "radix-SN-TD": lambda t, m: mine_topk_radix(t, m, single_node=True, top_down=True),
-    "radix-MN-BU": lambda t, m: mine_topk_radix(t, m, single_node=False, top_down=False),
-    "radix-MN-TD": lambda t, m: mine_topk_radix(t, m, single_node=False, top_down=True)
+    "radix-SN-BU": lambda t, m, b: mine_topk_radix(t, m, single_node=True, top_down=False, benchmark=b),
+    "radix-SN-TD": lambda t, m, b: mine_topk_radix(t, m, single_node=True, top_down=True, benchmark=b),
+    "radix-MN-BU": lambda t, m, b: mine_topk_radix(t, m, single_node=False, top_down=False, benchmark=b),
+    "radix-MN-TD": lambda t, m, b: mine_topk_radix(t, m, single_node=False, top_down=True, benchmark=b)
 }
 
 DATASETS = [
@@ -23,7 +23,7 @@ DATASETS = [
     "artificial_1",
 ]
 
-METRICS_FILE = "files/metrics_topk.csv"
+METRICS_FILE = "files/topk_metrics.csv"
 
 def load_local_dataset(path):
     transactions = []
@@ -58,7 +58,7 @@ def run_experiment(args):
     transactions = load_dataset(args.data)
     algorithm = ALGORITHMS[args.alg]
 
-    results = algorithm(transactions, args.k) # Call the chosen miner
+    results = algorithm(transactions, args.k, args.benchmark) # Call the chosen miner
 
     metrics = {
         "algorithm": getattr(args, "alg", "-"),
@@ -81,7 +81,13 @@ def run_experiment(args):
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     if not args.benchmark:
-        write_results(results["itemsets"], args, "TopKMiner") # Write mined itemsets to .txt
+        write_results(results["itemsets"], args, "KM") # Write mined itemsets to .txt
+    print(
+        "Build time: " + str(results["build_time"]) + " s" +
+        "\nMining time: " + str(results["mining_time"]) + " s" +
+        "\nTotal time: " + str(results["build_time"] + results["mining_time"]) + " s" +
+        "\nNumber of frequent closed itemsets: " + str(len(results["itemsets"]))
+        )
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Closed Frequent Itemset Mining")
@@ -92,7 +98,7 @@ if __name__ == '__main__':
     parser.add_argument("--k", type=int,
                         required=True, help="Number of itemsets to mine")
     parser.add_argument("--benchmark", action="store_true", 
-                        help="Run in benchmark mode (skip saving results)")
+                        help="Run in benchmark mode (skip saving results, log memory)")
     args = parser.parse_args()
 
     run_experiment(args)

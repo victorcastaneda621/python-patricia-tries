@@ -1,11 +1,19 @@
 import heapq
+
 import data_structures.patricia_trie.patricia_trie as pt
  
-def mine_topk_patricia(transactions, K):
+def mine_topk_patricia(transactions, K, benchmark=False):
 
     if K == 0:
-        return {"itemsets": []}
-
+        return {
+        "build_time": 0,
+        "mining_time": 0,
+        "itemsets": [],
+        "node_count": "-",
+        "max_depth": "-",
+        "peak_memory_mb": "-",
+        "tree_size_mb": "-",
+    }
     
     trie = pt.PatriciaTrie()
 
@@ -45,7 +53,8 @@ def mine_topk_patricia(transactions, K):
         if extracted == K: 
             # If we have extracted enough items, we found the real minsup
             sigma_prime = supp_Y
-        returned.append(trie.seq_to_transaction(Y_bits)) # We need to return the new itemset in FC (Y)
+        if not benchmark:
+            returned.append(trie.seq_to_transaction(Y_bits)) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:
             for j in range(i+1, len(trie.index_to_item)+1):
@@ -72,4 +81,13 @@ def mine_topk_patricia(transactions, K):
                             heapq.heappop(Q)
                             supp = Q[0][0]
  
-    return {"itemsets": returned}
+    return {
+        "build_time": "-",
+        "mining_time": "-",
+        "itemsets": returned,
+        "node_count": "-",
+        "max_depth": "-",
+        "peak_memory_mb": "-",
+        "tree_size_mb": "-",
+        "sigma": sigma
+    }

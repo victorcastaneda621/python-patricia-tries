@@ -41,5 +41,12 @@ def mine_lists(transactions, min_supp, benchmark=False):
                     count[IL[i]] = sum([1 for elem in DX if IL[i] in elem])
                 l=0
 
-    return {"itemsets": returned}
+    return {"build_time": "-",
+            "mining_time": "-",
+            "itemsets": returned,
+            "node_count": "-",
+            "max_depth": "-",
+            "peak_memory_mb": "-",
+            "tree_size_mb":"-"
+            }
 

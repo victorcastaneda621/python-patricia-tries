@@ -41,10 +41,18 @@ def attempt_ppc_extensions(X, n, item_to_idx, item_order, D, sigma, Q):
         # core_i(X) = prefix of X until position j-1
         heapq.heappush(Q, (-supp_Y, D_Y, j, Y_prefix))
  
-def mine_topk_lists(transactions, K):
+def mine_topk_lists(transactions, K, benchmark=False):
 
     if K == 0:
-        return {"itemsets": []}
+        return {
+        "build_time": 0,
+        "mining_time": 0,
+        "itemsets": [],
+        "node_count": "-",
+        "max_depth": "-",
+        "peak_memory_mb": "-",
+        "tree_size_mb": "-",
+    }
 
     count = Counter()
     for t in transactions:
@@ -64,7 +72,8 @@ def mine_topk_lists(transactions, K):
 
     current_closure, _ = closure(transactions)
     if current_closure: # i.e. it is not empty
-        returned.append(current_closure)
+        if not benchmark:
+            returned.append(current_closure)
         extracted += 1
         if K == 1:
             sigma_prime = len(transactions)
@@ -87,7 +96,8 @@ def mine_topk_lists(transactions, K):
             continue
         Y, _ = closure(D_Y)
         
-        returned.append(Y) # We need to return the new itemset in FC (Y)
+        if not benchmark:
+            returned.append(Y) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:
             for j in range(i+1, n+1):
@@ -115,4 +125,13 @@ def mine_topk_lists(transactions, K):
                             heapq.heappop(Q)
                             supp = Q[0][0]
  
-    return {"itemsets": returned}
+    return {
+        "build_time": "-",
+        "mining_time": "-",
+        "itemsets": returned,
+        "node_count": "-",
+        "max_depth": "-",
+        "peak_memory_mb": "-",
+        "tree_size_mb": "-",
+        "sigma": sigma
+    }

@@ -2,7 +2,7 @@ from data_structures import radix_tree_SN_TD, radix_tree_SN_BU, radix_tree_MN_TD
 from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
 from general_utils import prune_dataset
 
-def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark=False):
+def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchmark= False):
 
     transactions = prune_dataset(transactions, min_supp)
 
@@ -41,5 +41,13 @@ def mine_radix(transactions, min_supp, single_node: bool, top_down: bool, benchm
                 for i in range(l-1,-1,-1):
                     count[IL[i]] = tree.get_support_of_itemset(X[:h] + [IL[i]], order)
                 l=0
-
-    return {"itemsets": returned}
+    print("itemsets:", str(len(returned)))
+    
+    return {"build_time": "-",
+            "mining_time": "-",
+            "itemsets": returned,
+            "node_count": "-",
+            "max_depth": "-",
+            "peak_memory_mb": "-",
+            "tree_size_mb":"-"
+            }

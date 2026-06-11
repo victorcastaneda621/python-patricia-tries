@@ -4,6 +4,7 @@ from data_structures import radix_tree_SN_TD, radix_tree_SN_BU, radix_tree_MN_TD
 from data_structures.radix_tree.radix_tree_utils import radix_tree_count_sort
  
 def attempt_ppc_extensions(X, n, tree, order_to_item, item_to_order, sigma, Q):
+    ############### X_list = sorted(list(X), key=lambda a: order[a], reverse=True)
     for j in range(1, n + 1):
         item = order_to_item[j - 1]
         if item in X:
@@ -23,10 +24,18 @@ def attempt_ppc_extensions(X, n, tree, order_to_item, item_to_order, sigma, Q):
         # core_i(X) = prefix of X until position j-1
         heapq.heappush(Q, (-supp_Y, Y, j, None))
  
-def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
+def mine_topk_radix(transactions, K, single_node: bool, top_down: bool, benchmark=False):
 
     if K == 0:
-        return {"itemsets": []}
+        return {
+        "build_time": 0,
+        "mining_time": 0,
+        "itemsets": [],
+        "node_count": "-",
+        "max_depth": "-",
+        "peak_memory_mb": "-",
+        "tree_size_mb": "-",
+    }
 
     if single_node:
         if top_down:
@@ -70,7 +79,8 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
         if extracted == K: 
             # If we have extracted enough items, we found the real minsup
             sigma_prime = supp_Y
-        returned.append(Y) # We need to return the new itemset in FC (Y)
+        if not benchmark:
+            returned.append(Y) # We need to return the new itemset in FC (Y)
 
         if supp_Y > sigma:
             for j in range(i+1, n+1):
@@ -88,5 +98,15 @@ def mine_topk_radix(transactions, K, single_node: bool, top_down: bool):
                         sigma = -heapq.nsmallest(remaining, Q)[-1][0]
                         Q = [e for e in Q if -e[0] >= sigma]
                         heapq.heapify(Q)
+
  
-    return {"itemsets": returned}
+    return {
+        "build_time": "-",
+        "mining_time": "-",
+        "itemsets": returned,
+        "node_count": "-",
+        "max_depth": "-",
+        "peak_memory_mb": "-",
+        "tree_size_mb": "-",
+        "sigma": sigma
+    }

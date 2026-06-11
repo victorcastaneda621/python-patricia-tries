@@ -23,7 +23,7 @@ DATASETS = [
     "artificial_1",
 ]
 
-METRICS_FILE = "files/metrics_patricia_mine.csv"
+METRICS_FILE = "files/patricia_mine_metrics.csv"
 
 def load_local_dataset(path):
     transactions = []
@@ -79,7 +79,13 @@ def run_experiment(args):
 
     write_metrics(metrics, METRICS_FILE) # Write metrics to CSV
     if not args.benchmark:
-        write_results(results["itemsets"], args, "PatriciaMine") # Write mined itemsets to .txt
+        write_results(results["itemsets"], args, "PM") # Write mined itemsets to .txt
+    print(
+        "Build time: " + str(results["build_time"]) + " s" +
+        "\nMining time: " + str(results["mining_time"]) + " s" +
+        "\nTotal time: " + str(results["build_time"] + results["mining_time"]) + " s" +
+        "\nNumber of frequent itemsets: " + str(len(results["itemsets"]))
+        )
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Frequent Itemset Mining")
@@ -90,7 +96,7 @@ if __name__ == '__main__':
     parser.add_argument("--minsup", type=int,
                         required=True, help="Minimun support")
     parser.add_argument("--benchmark", action="store_true", 
-                        help="Run in benchmark mode (skip saving results)")
+                        help="Run in benchmark mode (skip saving results, log memory)")
     args = parser.parse_args()
 
     run_experiment(args)
